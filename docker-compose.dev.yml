@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: zoo-app
+    build: ./server/
+    command: uvicorn core.asgi:application --reload --host 0.0.0.0 --port 8054
+    env_file:
+      - ./server/.env
+    volumes:
+      - ./server:/code
+    ports:
+      - "8054:8054"
+    depends_on:
+      - db
+    networks:
+      - zoonetwork
+
+  web:
+    image: nginx:latest
+    container_name: zoo-web
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - zoonetwork
+
+  db:
+    container_name: zoo-db
+    image: postgres:15.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    expose:
+      - 5435
+    ports:
+      - "5438:5435"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data/
+    networks:
+      - zoonetwork
+
+networks:
+  zoonetwork:
+    driver: bridge

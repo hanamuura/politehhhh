@@ -1,0 +1,21 @@
+# Django
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+dist/
+build/
+media/
+
+db-data/
+
+# Virtual environment
+venv/
+ENV/
+
+#IDE
+.idea/
+
+# React
+node_modules/
