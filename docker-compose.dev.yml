@@ -16,6 +16,20 @@ services:
     networks:
       - zoonetwork
 
+  admin:
+    container_name: zoo-admin
+    build:
+      context: server/admin/
+    tty: true
+    volumes:
+      - ./server/admin:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - zoonetwork
+
   web:
     image: nginx:latest
     container_name: zoo-web
