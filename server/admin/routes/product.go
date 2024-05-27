@@ -21,5 +21,6 @@ func (pr *ProductRoutes) RegisterRoutes(r *gin.Engine) {
 	{
 		productRoutes.GET("", pr.productsController.GetAllProducts)
 		productRoutes.GET("/:id", pr.productsController.GetProductById)
+		productRoutes.POST("", pr.productsController.CreateProduct)
 	}
 }

@@ -3,14 +3,19 @@ package services
 import (
 	"admin/web-server/models"
 	"admin/web-server/repositories"
+	"github.com/go-playground/validator/v10"
 )
 
 type ProductService struct {
-	repo *repositories.ProductRepository
+	repo     *repositories.ProductRepository
+	validate *validator.Validate
 }
 
 func NewProductService(repository *repositories.ProductRepository) *ProductService {
-	return &ProductService{repo: repository}
+	return &ProductService{
+		repo:     repository,
+		validate: validator.New(validator.WithRequiredStructEnabled()),
+	}
 }
 
 func (ps *ProductService) GetAllProducts() ([]models.Product, error) {
@@ -21,7 +26,12 @@ func (ps *ProductService) GetAllProducts() ([]models.Product, error) {
 	return products, nil
 }
 
-func (ps *ProductService) CreateProduct(product models.Product) error {
+func (ps *ProductService) CreateProduct(product models.CreateProduct) error {
+	if err := ps.validate.Struct(product); err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			return err
+		}
+	}
 	err := ps.repo.CreateProduct(product)
 	if err != nil {
 		return err

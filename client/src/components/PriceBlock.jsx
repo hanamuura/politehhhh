@@ -14,7 +14,7 @@ export const PriceBlock = () => {
             }}/>
             <TextBlock>
                 <RangeValues>Цена: </RangeValues>
-                <RangeValues weight={900} color={'#5C8D87'}>3руб. - {value}руб.</RangeValues>
+                <RangeValues weight={900} color={'#5C8D87'}> от: 0руб. - до: {value}руб.</RangeValues>
             </TextBlock>
         </MainBlock>
     )

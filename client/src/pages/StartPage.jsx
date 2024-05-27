@@ -39,22 +39,26 @@ export function StartPage() {
         },
     ])
 
-    const [data, setData] = useState()
+    // const [data, setData] = useState()
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await fetch(`http://zoo.local/api/products/`);
-                const jsonData = await response.json();
-                setData(jsonData);
-                console.log(jsonData);
-            } catch (error) {
-                console.error(error);
-            }
-        }
+    // useEffect(() => {
+    //     async function fetchData() {
+    //         try {
+    //             const response = await fetch(`http://zoo.local/api/products/`);
+    //             const jsonData = await response.json();
+    //             setData(jsonData);
+    //             console.log(jsonData);
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     }
 
-        fetchData();
-    }, [setData]);
+    //     fetchData();
+
+    //     return () => {
+    //         fetchData
+    //     }
+    // }, []);
 
     const [products, setProducts] = useState([
         {
@@ -146,7 +150,7 @@ export function StartPage() {
             </PreviewContainer>
             <CategoryContainer>
                 <CategoryBlock categories={categories} values={values}/>
-                <ProductsContainer categories={category} products={data}/>
+                <ProductsContainer categories={category} products={products}/>
             </CategoryContainer>
             <Paginator/>
             <DeliveryPostsContainer posts={deliveryPosts}/>

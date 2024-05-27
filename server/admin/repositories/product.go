@@ -3,6 +3,8 @@ package repositories
 import (
 	"admin/web-server/db"
 	"admin/web-server/models"
+	"encoding/json"
+	"fmt"
 )
 
 type ProductRepository struct {
@@ -14,53 +16,96 @@ func NewProductRepository(database *db.DataBase) *ProductRepository {
 }
 
 func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
-	var products []models.Product
+	query := `
+        SELECT 
+            p.id, p.name, p.description, p.price, p.availability,
+            c.id AS categories_id, c.name AS category_name
+        FROM product p
+        LEFT JOIN product_categories pc ON p.id = pc.product_id
+        LEFT JOIN categories c ON pc.categories_id = c.id
+    `
 
-	rows, err := pr.db.Query("SELECT * FROM product")
+	rows, err := pr.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
+	var productsAsJSON []models.Product
+
 	for rows.Next() {
-		var product models.Product
-		err := rows.Scan(
+		var product models.ProductFromDB
+		var category models.Category
+		var newProduct models.Product
+		if err := rows.Scan(
 			&product.ID,
 			&product.Name,
 			&product.Description,
 			&product.Price,
 			&product.Availability,
-		)
+			&category.ID,
+			&category.Name,
+		); err != nil {
+			return nil, err
+		}
+		newProduct.ID = product.ID
+		newProduct.Name = product.Name
+		err := json.Unmarshal(product.Description, &newProduct.Description)
 		if err != nil {
 			return nil, err
 		}
-		products = append(products, product)
+		newProduct.Price = product.Price
+		newProduct.Availability = product.Availability
+		newProduct.Categories = append(newProduct.Categories, models.Category{ID: category.ID, Name: category.Name})
+		productsAsJSON = append(productsAsJSON, newProduct)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return products, nil
+	return productsAsJSON, nil
 }
 
-func (pr *ProductRepository) CreateProduct(product models.Product) error {
+func (pr *ProductRepository) CreateProduct(product models.CreateProduct) error {
+	fmt.Println("repo: " + product.Name)
 	tx, err := pr.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO product (name, description, price, availability) VALUES (?, ?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO product( name, description, price, availability) VALUES ( $1, $2, $3, $4 ) RETURNING id")
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(product.Name, product.Description, product.Price, product.Availability)
+	description, err := json.Marshal(product.Description)
+	if err != nil {
+		return err
+	}
+
+	var lastInsertedID int64
+	err = stmt.QueryRow(product.Name, description, product.Price, product.Availability).Scan(&lastInsertedID)
+	if err != nil {
+		return err
+	}
+	res := fmt.Sprintf("repo id: %d", lastInsertedID)
+	fmt.Print(res)
 	if err != nil {
 		tx.Rollback()
 		return err
+	}
+	catStmt, err := tx.Prepare("INSERT INTO product_categories(product_id, categories_id) VALUES ($1, $2)")
+	if err != nil {
+		fmt.Print(err)
+		tx.Rollback()
+		return err
+	}
+
+	for _, cat := range product.Categories {
+		catStmt.Exec(lastInsertedID, cat.ID)
 	}
 
 	err = tx.Commit()
@@ -73,14 +118,14 @@ func (pr *ProductRepository) CreateProduct(product models.Product) error {
 }
 
 func (pr *ProductRepository) GetProductById(id string) (models.Product, error) {
-	// Получение информации о продукте
+	var productFromDB models.ProductFromDB
 	var product models.Product
 	err := pr.db.QueryRow("SELECT id, name, description, price, availability FROM product WHERE id = $1", id).
-		Scan(&product.ID, &product.Name, &product.Description, &product.Price, &product.Availability)
+		Scan(&product.ID, &product.Name, &productFromDB.Description, &product.Price, &product.Availability)
 	if err != nil {
 		return models.Product{}, err
 	}
-
+	json.Unmarshal(productFromDB.Description, &product.Description)
 	product.Categories, err = pr.GetCategoriesOfProduct(product.ID)
 	if err != nil {
 		return models.Product{}, err
@@ -164,3 +209,4 @@ func (pr *ProductRepository) GetCategoriesOfProduct(productID uint) ([]models.Ca
 
 	return categories, nil
 }
+

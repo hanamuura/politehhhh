@@ -19,3 +19,6 @@ ENV/
 
 # React
 node_modules/
+
+server/admin/go.mod
+server/admin/go.sum

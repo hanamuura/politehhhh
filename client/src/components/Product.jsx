@@ -11,12 +11,12 @@ export const Product = ({product}) => {
             <TextContainer>
                 <ProductName>{product.name}</ProductName>
                 <ProductPrice>{product?.price} руб.</ProductPrice>
-                <ProductCategories>
+                {/* <ProductCategories>
                     {product.categories.map(el =>
                         <ProductCategory key={el.name}>
                             {el.name}
                         </ProductCategory>)}
-                </ProductCategories>
+                </ProductCategories> */}
             </TextContainer>
             <CustomButton>В корзину</CustomButton>
         </MainBlock>
