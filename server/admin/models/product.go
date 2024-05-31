@@ -15,11 +15,11 @@ type Product struct {
 }
 
 type ProductFromDB struct {
-	ID           uint       `json:"id" gorm:"primary_key"`
-	Name         string     `json:"name"`
-	Description  []byte     `json:"description"`
-	Price        float64    `json:"price"`
-	Availability int        `json:"availability"`
+	ID           uint    `json:"id" gorm:"primary_key"`
+	Name         string  `json:"name"`
+	Description  []byte  `json:"description"`
+	Price        float64 `json:"price"`
+	Availability int     `json:"availability"`
 }
 
 type CreateProduct struct {

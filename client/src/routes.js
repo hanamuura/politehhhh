@@ -1,4 +1,5 @@
 export const routes = {
-    startPage: "/",
-    testPage: "/test"
+    main: "/",
+    test: "/test",
+    admin: "/admin"
 }

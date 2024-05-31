@@ -1,44 +1,50 @@
 import './App.css';
-import {Link, Route, Routes} from "react-router-dom";
-import {routes} from "./routes";
-import {StartPage} from "./pages/StartPage";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { routes } from "./routes";
+import { StartPage } from "./pages/StartPage";
 import styled from "styled-components";
-import {TestPage} from "./pages/TestPage"
+import { TestPage } from "./pages/TestPage"
 import textLogo from "./recources/images/MOZY.svg"
 import logo from "./recources/images/logo 1.svg"
 import searchLogo from "./recources/images/Free_Search_PNG__SVG_Icon-removebg-preview 1.svg"
 import favouriteLogo from "./recources/images/Снимок_экрана_2023-11-12_203345-removebg-preview 1.svg"
-import {CustomButton} from "./components/UI/CustomButton";
+import { CustomButton } from "./components/UI/CustomButton";
+import AdminPage from './pages/AdminPage';
 
 function App() {
 
-    return (
-        <div className="App">
-            <Header>
-                <LogoContainer>
-                    <Logo src={logo}/>
-                    <TextLogo src={textLogo}/>
-                </LogoContainer>
-                <Links>
-                    <NavLink to={routes.startPage}>Каталог</NavLink>
-                    <A>Доставка</A>
-                    <A>Контакты</A>
-                </Links>
-                <AuthContainer>
-                    <Container>
-                        <SearchLogo src={searchLogo}/>
-                        <FavouriteLogo src={favouriteLogo}/>
-                        <Circle>0</Circle>
-                    </Container>
-                    <CustomButton>Войти</CustomButton>
-                </AuthContainer>
-            </Header>
-            <Routes>
-                <Route path={routes.startPage} element={<StartPage/>}/>
-                <Route path={routes.testPage} element={<TestPage/>}/>
-            </Routes>
-        </div>
-    );
+  const location = useLocation()
+
+  return (
+    <div>
+      {location.pathname !== routes.admin && (
+        <Header>
+          <LogoContainer>
+            <Logo src={logo} />
+            <TextLogo src={textLogo} />
+          </LogoContainer>
+          <Links>
+            <NavLink to={routes.startPage}>Каталог</NavLink>
+            <A>Доставка</A>
+            <A>Контакты</A>
+          </Links>
+          <AuthContainer>
+            <Container>
+              <SearchLogo src={searchLogo} />
+              <FavouriteLogo src={favouriteLogo} />
+              <Circle>0</Circle>
+            </Container>
+            <CustomButton>Войти</CustomButton>
+          </AuthContainer>
+        </Header>
+      )}
+      <Routes>
+        <Route path={routes.main} element={<StartPage />} />
+        <Route path={routes.test} element={<TestPage />} />
+        <Route path={routes.admin} element={<AdminPage />} />
+      </Routes>
+    </div>
+  );
 }
 
 const A = styled.a`

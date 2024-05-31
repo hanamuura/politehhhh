@@ -24,19 +24,16 @@ func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
         LEFT JOIN product_categories pc ON p.id = pc.product_id
         LEFT JOIN categories c ON pc.categories_id = c.id
     `
-
 	rows, err := pr.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
-	var productsAsJSON []models.Product
+	var productsAsJSON = make(map[int]models.Product)
 
 	for rows.Next() {
 		var product models.ProductFromDB
 		var category models.Category
-		var newProduct models.Product
 		if err := rows.Scan(
 			&product.ID,
 			&product.Name,
@@ -48,23 +45,38 @@ func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
 		); err != nil {
 			return nil, err
 		}
-		newProduct.ID = product.ID
-		newProduct.Name = product.Name
-		err := json.Unmarshal(product.Description, &newProduct.Description)
-		if err != nil {
-			return nil, err
+	
+		if _, ok := productsAsJSON[int(product.ID)]; !ok {
+			productsAsJSON[int(product.ID)] = models.Product{
+				ID:           product.ID,
+				Name:         product.Name,
+				Description:  models.JSONDescription{},
+				Price:        product.Price,
+				Availability: product.Availability,
+			}
 		}
-		newProduct.Price = product.Price
-		newProduct.Availability = product.Availability
-		newProduct.Categories = append(newProduct.Categories, models.Category{ID: category.ID, Name: category.Name})
-		productsAsJSON = append(productsAsJSON, newProduct)
+	
+		if entry, ok := productsAsJSON[int(product.ID)]; ok {
+			json.Unmarshal(product.Description, &entry.Description)
+			productsAsJSON[int(product.ID)] = entry
+		}
+	
+		if entry, ok := productsAsJSON[int(product.ID)]; ok {
+			entry.Categories = append(entry.Categories, models.Category{ID: category.ID,Name: category.Name})
+			productsAsJSON[int(product.ID)] = entry
+		}
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return productsAsJSON, nil
+	products := make([]models.Product, 0, len(productsAsJSON))
+	for _, product := range productsAsJSON {
+		products = append(products, product)
+	}
+
+	return products, nil
 }
 
 func (pr *ProductRepository) CreateProduct(product models.CreateProduct) error {
@@ -209,4 +221,3 @@ func (pr *ProductRepository) GetCategoriesOfProduct(productID uint) ([]models.Ca
 
 	return categories, nil
 }
-
