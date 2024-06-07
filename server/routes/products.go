@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"admin/web-server/admin/controllers"
+	"admin/web-server/controllers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +21,6 @@ func (pr *ProductRoutes) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		productRoutes.GET("", pr.productsController.GetAllProducts)
 		productRoutes.GET("/:id", pr.productsController.GetProductById)
-		productRoutes.POST("", pr.productsController.CreateProduct)
+		productRoutes.POST("", pr.productsController.CreateProductUser)
 	}
 }

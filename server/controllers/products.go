@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"admin/web-server/admin/models"
-	"admin/web-server/admin/services"
+	"admin/web-server/services"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 type ProductController struct {
@@ -20,15 +20,27 @@ func NewProductController(producService *services.ProductService) *ProductContro
 }
 
 func (pc *ProductController) GetAllProducts(c *gin.Context) {
-	products, err := pc.service.GetAllProducts()
+	param := c.Query("user_id")
+	if param == "" {
+		products, err := pc.service.GetAllProducts()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, products)
+		return
+	}
+	userID, _ := strconv.Atoi(param)
+	userProducts, err := pc.service.GetProductUser(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-
-	c.JSON(http.StatusOK, products)
+	c.JSON(http.StatusOK, userProducts)
 }
 
 func (pc *ProductController) GetProductById(c *gin.Context) {
@@ -44,30 +56,20 @@ func (pc *ProductController) GetProductById(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
-func (pc *ProductController) CreateProduct(c *gin.Context) {
-	var product models.CreateProduct
+type CreateUserProduct struct {
+	ProductID int `json:"product_id"`
+	UserID    int `json:"user_id"`
+}
 
-	if err := c.ShouldBind(&product); err != nil {
+func (pc *ProductController) CreateProductUser(c *gin.Context) {
+	var body CreateUserProduct
+	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-
-	dst := fmt.Sprintf("uploads/%s", product.Image.Filename)
-	if err := c.SaveUploadedFile(product.Image, dst); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось сохранить файл",
-		})
-		return
-	}
-
-	if err := pc.service.CreateProduct(product); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusCreated, product)
+	val := strconv.Itoa(body.ProductID)
+	fmt.Println("asdfa    :   " + val)
+	pc.service.CreateProductUser(body.ProductID, body.UserID)
 }

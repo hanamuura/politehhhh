@@ -1,9 +1,10 @@
 package repositories
 
 import (
-	"admin/web-server/admin/models"
 	"admin/web-server/db"
+	"admin/web-server/models"
 	"encoding/json"
+	"fmt"
 )
 
 type ProductRepository struct {
@@ -78,42 +79,6 @@ func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
 	return products, nil
 }
 
-func (pr *ProductRepository) CreateProduct(product models.CreateProduct) error {
-	description, err := json.Marshal(product.Description)
-	if err != nil {
-		return err
-	}
-
-	// Вставляем запись о продукте
-	stmt, err := pr.db.Prepare("INSERT INTO product(name, description, price, availability, image_path) VALUES ($1, $2, $3, $4, $5) RETURNING id")
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	var productID int64
-	err = stmt.QueryRow(product.Name, description, product.Price, product.Availability, product.Image.Filename).Scan(&productID)
-	if err != nil {
-		return err
-	}
-
-	// Вставляем связи между продуктом и категориями
-	for _, cat := range product.Categories {
-		stmt, err = pr.db.Prepare("INSERT INTO product_categories(product_id, categories_id) VALUES ($1, $2)")
-		if err != nil {
-			return err
-		}
-		defer stmt.Close()
-
-		_, err = stmt.Exec(productID, cat.ID)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (pr *ProductRepository) GetProductById(id string) (models.Product, error) {
 	var productFromDB models.ProductFromDB
 	var product models.Product
@@ -142,7 +107,7 @@ func (pr *ProductRepository) GetProductsByCategory(category models.Category) ([]
 		FROM product p
 		JOIN product_categories pc ON p.id = pc.product_id
 		JOIN categories c ON pc.categories_id = c.id
-		WHERE c.name = $1
+		WHERE c.name = ?
 	`)
 	if err != nil {
 		tx.Rollback()
@@ -205,4 +170,46 @@ func (pr *ProductRepository) GetCategoriesOfProduct(productID uint) ([]models.Ca
 	}
 
 	return categories, nil
+}
+
+func (pr *ProductRepository) CreateProductUser(userID int, productID int) error {
+	query := `
+		insert into user_product(product_id, user_id) values($1, $2)
+	`
+
+	_, err := pr.db.Query(query, userID, productID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *ProductRepository) GetProductUser(userID int) ([]models.UserProduct, error) {
+	query := `
+		select p.name, p.availability, p.description, p.price, p.id
+			from product as p	
+		inner join user_product as up on p.id = up.product_id
+		where up.user_id = $1
+	`
+
+	rows, err := pr.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	var products []models.UserProduct
+	for rows.Next() {
+		var product models.UserProduct
+		var description []byte
+		rows.Scan(
+			&product.Name,
+			&product.Availability,
+			&description,
+			&product.Price,
+			&product.ID,
+		)
+		json.Unmarshal(description, &product.Description)
+		fmt.Println(product.Name)
+		products = append(products, product)
+	}
+	return products, nil
 }

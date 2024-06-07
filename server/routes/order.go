@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"admin/web-server/admin/controllers"
+	"admin/web-server/controllers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,5 +20,7 @@ func (or *OrderRoutes) RegisterRoutes(r *gin.RouterGroup) {
 	orderRoutes := r.Group("/orders")
 	{
 		orderRoutes.GET("", or.controller.GetAllOrders)
+		orderRoutes.GET("/", or.controller.GetUserOrders)
+		orderRoutes.POST("", or.controller.CreateOrder)
 	}
 }

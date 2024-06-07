@@ -1,8 +1,8 @@
 package services
 
 import (
-	"admin/web-server/admin/models"
-	"admin/web-server/admin/repositories"
+	"admin/web-server/repositories"
+	"admin/web-server/models"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -27,17 +27,6 @@ func (ps *ProductService) GetAllProducts() ([]models.Product, error) {
 	return products, nil
 }
 
-func (ps *ProductService) CreateProduct(product models.CreateProduct) error {
-
-	err := ps.repo.CreateProduct(product)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-
 func (ps *ProductService) GetProductById(id string) (models.Product, error) {
 	product, err := ps.repo.GetProductById(id)
 	if err != nil {
@@ -52,4 +41,16 @@ func (ps *ProductService) GetProductsByCategory(category models.Category) ([]mod
 		return nil, err
 	}
 	return products, nil
+}
+
+func (ps *ProductService) CreateProductUser(userID int, productID int) (error) {
+	err := ps.repo.CreateProductUser(userID, productID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ps *ProductService) GetProductUser(userID int) ([]models.UserProduct, error) {
+	return ps.repo.GetProductUser(userID)
 }

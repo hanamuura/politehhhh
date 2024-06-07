@@ -1,8 +1,8 @@
 package services
 
 import (
-	"admin/web-server/admin/models"
-	"admin/web-server/admin/repositories"
+	"admin/web-server/models"
+	"admin/web-server/repositories"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -19,7 +19,7 @@ func NewOrderService(repository *repositories.OrderRepository) *OrderService {
 	}
 }
 
-func (os *OrderService) GetAllOrders() ([]models.Order, error){
+func (os *OrderService) GetAllOrders() ([]models.Order, error) {
 	orders, err := os.repo.GetAllOrders()
 	if err != nil {
 		return nil, err
@@ -27,6 +27,10 @@ func (os *OrderService) GetAllOrders() ([]models.Order, error){
 	return orders, nil
 }
 
-func (os *OrderService) CreateOrder() error {
-	return nil
+func (os *OrderService) CreateOrder(order models.CreateOrder) error {
+	return os.repo.CreateOrder(order)
+}
+
+func (os *OrderService) GetUserOrders(userID int) ([]models.Order, error){
+	return os.repo.GetUserOrders(userID)
 }

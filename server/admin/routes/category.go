@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"admin/web-server/controllers"
+	"admin/web-server/admin/controllers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,7 @@ func NewCategoriesRoutes(controller *controllers.CategoryController) *Categories
 	return &CategoriesRoutes{controller: controller}
 }
 
-func (cr *CategoriesRoutes) RegisterRoutes(r *gin.Engine) {
+func (cr *CategoriesRoutes) RegisterRoutes(r *gin.RouterGroup) {
 	categoryRoutes := r.Group("/categories")
 	{
 		categoryRoutes.GET("", cr.controller.GetAll)

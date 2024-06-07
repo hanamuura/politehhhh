@@ -1,8 +1,8 @@
 package services
 
 import (
-	"admin/web-server/models"
-	"admin/web-server/repositories"
+	"admin/web-server/admin/models"
+	"admin/web-server/admin/repositories"
 )
 
 type CategoryService struct {

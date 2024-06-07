@@ -15,7 +15,6 @@ type OrderStatus struct {
 }
 
 type CreateOrder struct {
-	OrderDate time.Time `json:"order_date"`
 	StatusID  uint      `json:"status_id"`
 	ProductID uint      `json:"product_id"`
 	UserID    uint      `json:"user_id"`

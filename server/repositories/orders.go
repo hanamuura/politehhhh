@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"admin/web-server/admin/models"
 	"admin/web-server/db"
+	"admin/web-server/models"
 )
 
 type OrderRepository struct {
@@ -46,32 +46,16 @@ func (or *OrderRepository) GetAllOrders() ([]models.Order, error) {
 }
 
 func (or *OrderRepository) CreateOrder(order models.CreateOrder) error {
-	tx, err := or.db.Begin()
-	if err != nil {
-		return err
-	}
-
 	query := `
-    insert into (order_date, status_id, product_id, user_id) values ($1, $2)
-`
-	stmt, err := tx.Prepare(query)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	defer stmt.Close()
+		INSERT INTO "order" (order_date, order_status, product, user_id)
+		VALUES (NOW(), $1, $2, $3)
+	`
 
-	_, err = stmt.Exec(order.OrderDate, order.StatusID)
+	_, err := or.db.Exec(query, order.StatusID, order.ProductID, order.UserID)
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
 	return nil
 }
 

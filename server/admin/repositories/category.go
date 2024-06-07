@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"admin/web-server/db"
-	"admin/web-server/models"
+	"admin/web-server/admin/models"
 )
 
 type CategoriesRepository struct {

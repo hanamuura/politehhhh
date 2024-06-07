@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"admin/web-server/services"
+	"admin/web-server/admin/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
