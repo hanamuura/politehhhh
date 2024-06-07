@@ -1,20 +1,11 @@
-import styled from "styled-components";
+import React from "react"
 
-export const CustomButton = ({children, ...props}) => {
-    return (
-        <Button {...props}>
-            {children}
-        </Button>
-    )
-}
+const CustomButton = (props) => {
+  return (
+    <button className="bg-primary rounded-[50px] text-white w-[163px] h-[35px] font-extrabold" {...props}>
+        {props.children}
+    </button>
+  )
+};
 
-const Button = styled.button`
-  width: ${props => props?.width ?? '100px'};
-  height: ${props => props?.height ?? '35px'};
-  border: none;
-  border-radius: 5px;
-  background: #5C8D87;
-  color: #FFFFFF;
-  cursor: pointer;
-  margin: ${props => props?.margintop ?? '0'} ${props => props?.marginright ?? '0'} ${props => props?.marginbottom ?? '0'} ${props => props.marginleft};
-`
+export default CustomButton;

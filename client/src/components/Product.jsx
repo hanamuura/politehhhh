@@ -1,26 +1,46 @@
-import {CustomButton} from "./UI/CustomButton";
+import CustomButton from "./UI/CustomButton";
 import styled from "styled-components";
+import { Link, Route } from "react-router-dom";
+import { routes } from "../routes";
+import Cookie from 'js-cookie'
 
-
-export const Product = ({product}) => {
-    return (
-        <MainBlock>
-            <ImageContainer>
-                <Image src={product?.image}/>
-            </ImageContainer>
-            <TextContainer>
-                <ProductName>{product.name}</ProductName>
-                <ProductPrice>{product?.price} руб.</ProductPrice>
-                {/* <ProductCategories>
+export const Product = ({ product }) => {
+  return (
+    <MainBlock>
+      <Link
+        to={`${product.id}`}
+      >
+        <ImageContainer>
+          <Image src={product?.image} />
+        </ImageContainer>
+        <TextContainer>
+          <ProductName>{product.name}</ProductName>
+          <ProductPrice>{product?.price} руб.</ProductPrice>
+          {/* <ProductCategories>
                     {product.categories.map(el =>
                         <ProductCategory key={el.name}>
                             {el.name}
                         </ProductCategory>)}
                 </ProductCategories> */}
-            </TextContainer>
-            <CustomButton>В корзину</CustomButton>
-        </MainBlock>
-    )
+        </TextContainer>
+      </Link>
+      <CustomButton
+        onClick={() => {
+          const userID = JSON.parse(Cookie.get('user')).id
+          const request = { user_id: userID, product_id: product.id }
+          const fetchData = () => {
+            fetch('http://localhost:8080/api/v1/products', {
+              method: "POST",
+              body: JSON.stringify(request)
+            })
+          }
+          fetchData()
+        }}
+      >
+        В корзину
+      </CustomButton>
+    </MainBlock>
+  )
 }
 
 const ProductCategories = styled.div`
@@ -61,5 +81,4 @@ const MainBlock = styled.div`
   flex-direction: column;
   width: 260px;
   height: 455px;
-  margin-top: 40px;
 `

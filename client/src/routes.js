@@ -1,5 +1,9 @@
 export const routes = {
     main: "/",
-    test: "/test",
-    admin: "/admin"
+    admin: "/admin",
+    product: "/:id",
+    user: "/profile",
+    login: "/login",
+    register: "/register",
+    bucket: "/bucket",
 }

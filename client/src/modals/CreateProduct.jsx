@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const CreateProduct = ({ onClose, onSave }) => {
     const [newProduct, setNewProduct] = useState({
         name: '',
-        description: { body: '' },
+        description: { title: '', body: '' },
         price: 0,
         availability: 0,
         categories: [],
     });
+
+    let image = null
+    const [categories, setCategories] = useState()
+    const [loaded, setLoaded] = useState(false)
+
+    useEffect(() => {
+        async function fetchData() {
+            const response = await fetch("http://localhost:8080/api/admin/categories")
+            const data = await response.json()
+            setCategories(data)
+            setLoaded(prev => !prev)
+        }
+        fetchData()
+    }, [])
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -19,7 +33,14 @@ const CreateProduct = ({ onClose, onSave }) => {
         }));
     };
 
+
+    const handleFileChange = (event) => {
+        image = event.target.files[0]
+        console.log(image);
+    };
+
     const handleCategoryChange = (category) => {
+        console.log(category)
         setNewProduct((prevProduct) => ({
             ...prevProduct,
             categories: [...prevProduct.categories, category],
@@ -27,10 +48,30 @@ const CreateProduct = ({ onClose, onSave }) => {
     };
 
     const handleSave = () => {
-        onSave(newProduct);
-        onClose(prev => {
-            return!prev
+        newProduct.description.title = "newProduct"
+
+        console.log(newProduct);
+
+        const formData = new FormData();
+        formData.append('name', newProduct.name);
+        formData.append('description', JSON.stringify(newProduct.description));
+        formData.append('price', newProduct.price);
+        formData.append('availability', newProduct.availability);
+        newProduct.categories.forEach((category) => {
+            formData.append('categories[]', category);
         });
+        formData.append('image', image);
+
+        console.log(formData);
+
+        try {
+            fetch('http://localhost:8080/api/admin/products', {
+                method: 'POST',
+                body: formData,
+            });
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     return (
@@ -107,22 +148,9 @@ const CreateProduct = ({ onClose, onSave }) => {
                                 <label className="block text-sm font-medium text-gray-700">
                                     Категории
                                 </label>
-                                <input
-                                    type="text"
-                                    placeholder="Добавить категорию"
-                                    className="mt-1 block w-full sm:text-sm outline-none border-gray-300 rounded-md"
-                                />
-                                <ul className="mt-2">
-                                    {newProduct.categories.map((category, index) => (
-                                        <li
-                                            key={index}
-                                            className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-200 text-blue-800 mr-2"
-                                        >
-                                            {category}
-                                        </li>
-                                    ))}
-                                </ul>
+                                {categories && categories.map(val => (<div><input type='checkbox' onChange={() => handleCategoryChange(val)} /><label>{val.name}</label></div>))}
                             </div>
+                            <input type='file' onChange={(e) => handleFileChange(e)} />
                         </div>
                     </div>
                     <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
@@ -136,7 +164,10 @@ const CreateProduct = ({ onClose, onSave }) => {
                         <button
                             type="button"
                             className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-600 text-base font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm"
-                            onClick={() => onClose(prev => !prev)}
+                            onClick={() => {
+                                onClose(prev => !prev)
+                                console.log(newProduct);
+                            }}
                         >
                             Закрыть
                         </button>

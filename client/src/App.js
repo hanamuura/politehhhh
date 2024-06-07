@@ -8,42 +8,66 @@ import textLogo from "./recources/images/MOZY.svg"
 import logo from "./recources/images/logo 1.svg"
 import searchLogo from "./recources/images/Free_Search_PNG__SVG_Icon-removebg-preview 1.svg"
 import favouriteLogo from "./recources/images/Снимок_экрана_2023-11-12_203345-removebg-preview 1.svg"
-import { CustomButton } from "./components/UI/CustomButton";
+import CustomButton from "./components/UI/CustomButton";
 import AdminPage from './pages/AdminPage';
+import ProductPage from './pages/ProductPage';
+import ProfilePage from './pages/ProfilePage';
+import LogoIcon from './components/LogoIcon';
+import { UserProvider, UserContext } from './components/contexts/UserContext';
+import { useContext, useEffect } from 'react';
+import Login from './modals/Login';
+import { useToggle } from './hooks/useToggle';
+import { FaUser } from "react-icons/fa6";
+import Cookies from 'js-cookie';
+import Bucket from './pages/Bucket';
 
 function App() {
 
   const location = useLocation()
+  const { currentUser, login, logout } = useContext(UserContext)
+  const { isOpen, toggle } = useToggle()
+  useEffect(() => {
+    const user = Cookies.get('user')
+    if (user) {
+      login(JSON.parse(user))
+    }
+  }, [])
+
+  console.log(currentUser)
 
   return (
-    <div>
+    <div className=''>
       {location.pathname !== routes.admin && (
         <Header>
           <LogoContainer>
-            <Logo src={logo} />
-            <TextLogo src={textLogo} />
+            <Link to={routes.main}>
+              <LogoIcon />
+            </Link>
           </LogoContainer>
           <Links>
-            <NavLink to={routes.startPage}>Каталог</NavLink>
-            <A>Доставка</A>
-            <A>Контакты</A>
+            {currentUser?.is_super ? <NavLink to={routes.admin}>Админка</NavLink> : null}
           </Links>
           <AuthContainer>
             <Container>
-              <SearchLogo src={searchLogo} />
-              <FavouriteLogo src={favouriteLogo} />
-              <Circle>0</Circle>
+              <Link to={routes.bucket}>
+                <FavouriteLogo src={favouriteLogo} />
+                <Circle>3</Circle>
+              </Link>
             </Container>
-            <CustomButton>Войти</CustomButton>
+            {currentUser ? <Link to={routes.user}><FaUser className='w-[25px] h-[25px]' /></Link> : <CustomButton onClick={toggle}>Войти</CustomButton>}
           </AuthContainer>
         </Header>
       )}
       <Routes>
         <Route path={routes.main} element={<StartPage />} />
-        <Route path={routes.test} element={<TestPage />} />
         <Route path={routes.admin} element={<AdminPage />} />
+        <Route path={routes.product} element={<ProductPage />} />
+        <Route path={routes.user} element={<ProfilePage />} />
+        <Route path={routes.bucket} element={<Bucket />} />
       </Routes>
+      {isOpen && <Login isOpen={isOpen} onClose={toggle} />}
     </div>
+
   );
 }
 
@@ -60,13 +84,13 @@ const A = styled.a`
     bottom: -2px;
     width: 100%;
     height: 2px;
-    background-color: #689F9A;
+    background-color: rgba(126, 131, 174, 1);
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
 
   &:hover {
-    color: #689F9A;
+    color: rgba(126, 131, 174, 1);
   }
 
   &:hover::after,
@@ -91,7 +115,7 @@ const Circle = styled.div`
   top: 2px;
   width: 12px;
   height: 12px;
-  background: #5C8D87;
+  background: rgba(126, 131, 174, 1);
   border-radius: 50%;
   color: white;
   text-align: center;
@@ -110,6 +134,8 @@ const SearchLogo = styled.img`
 
 const AuthContainer = styled.div`
   display: flex;
+  justify-content: space-around;
+  align-items: center;
 `
 
 const LogoContainer = styled.div`
@@ -135,12 +161,12 @@ const Links = styled.div`
   display: flex;
   width: 261px;
   justify-content: space-between;
+  gap: 20px;
   
 `
-
 const NavLink = styled(Link)`
   text-decoration: none;
-  color: black;
+  color: #333;
   position: relative;
   
   &::after{
@@ -150,23 +176,27 @@ const NavLink = styled(Link)`
     bottom: -2px;
     width: 100%;
     height: 2px;
-    background-color: #689F9A;
+    background-color: transparent;
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
 
   &:hover {
-    color: #689F9A;
+    color: rgba(126, 131, 174, 1);
+    
+    &::after {
+      background-color: rgba(126, 131, 174, 1);
+      transform: scaleX(1);
+    }
   }
   
-  &:hover::after,
-  &.active::after {
-    transform: scaleX(1);
-  }
-  
-  &:visited::after ,
-  &.active:visited::after {
-    transform: scaleX(1);
+  &.active {
+    color: rgba(126, 131, 174, 1);
+    
+    &::after {
+      background-color: rgba(126, 131, 174, 1);
+      transform: scaleX(1);
+    }
   }
 `
 

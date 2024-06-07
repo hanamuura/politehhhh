@@ -1,114 +1,49 @@
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
 import styled from "styled-components";
 import dog from "../recources/images/Prelude_to_Reality-removebg-preview 1.png"
-import {CustomButton} from "../components/UI/CustomButton";
-import {CategoryBlock} from "../components/CategoryBlock";
-import {ProductsContainer} from "../components/ProductsContainer";
+import  CustomButton  from "../components/UI/CustomButton";
+import { CategoryBlock } from "../components/CategoryBlock";
+import { ProductsContainer } from "../components/ProductsContainer";
 import i1 from "../recources/images/products/Снимок_экрана_2023-12-17_190838-removebg-preview (1) 1.png"
 import i2 from "../recources/images/products/Снимок_экрана_2023-12-17_191800-removebg-preview 1.png"
 import i3 from "../recources/images/products/Снимок_экрана_2023-12-17_192137-removebg-preview 1.png"
 import i4 from "../recources/images/products/Снимок_экрана_2023-12-17_193028-removebg-preview 1.png"
 import i5 from "../recources/images/products/Снимок_экрана_2023-12-17_193550-removebg-preview 1.png"
 import i6 from "../recources/images/products/Снимок_экрана_2023-12-17_194131-removebg-preview 1.png"
-import {Paginator} from "../components/Paginator";
-import {DeliveryPost} from "../components/DeliveryPost";
+import { Paginator } from "../components/Paginator";
+import  DeliveryPost  from "../components/DeliveryPost";
 import delivery1 from "../recources/images/delivery/logi57n 1.png"
-import {DeliveryPostsContainer} from "../components/DeliveryPostsContainer";
+import { DeliveryPostsContainer } from "../components/DeliveryPostsContainer";
 
 export function StartPage() {
-    const category = ["Собаки", "Кошки", "Птицы", "Грызуны", "Рыбки"]
-    const [categories, setCategories] = useState([
-        {
-            name: "Диетический корм",
-            options: ["Диетический сухой корм", "Консервы диетические", "Пресервы диетические"],
-            counter: 61
-        },
-        {
-            name: "Корм",
-            options: ["Сухой корм", "Консервы", "Пресервы", "Лакомства", "Витамины и добавки"],
-            counter: 665
-        },
-        {
-            name: "Содержание и уход",
-            options: [
-                "Домики и лежаки", "Игрушки", "Переноски, будки",
-                "Гигиена", "Одежда и обувь", "Туалеты, пеленки", "Груминг",
-                "Посуда", "Амуниция"
-            ],
-            counter: 542
-        },
-    ])
+    const [category, setCategory] = useState([])
+    const [data, setData] = useState([])
+    
 
-    // const [data, setData] = useState()
+    useEffect(() => {
+        const abortController = new AbortController()
+        const { signal } = abortController
+        async function fetchData() {
+            try {
+                const products = await fetch(`http://localhost:8080/api/v1/products`, {
+                    signal: signal
+                });
+                const categories = await fetch(`http://localhost:8080/api/admin/categories`)
+                const productsJsonData = await products.json();
+                const categoriesJsonData = await categories.json()
+                setData(productsJsonData);
+                setCategory(categoriesJsonData)
+            } catch (error) {
+                console.error(error);
+            }
+        }
 
-    // useEffect(() => {
-    //     async function fetchData() {
-    //         try {
-    //             const response = await fetch(`http://zoo.local/api/products/`);
-    //             const jsonData = await response.json();
-    //             setData(jsonData);
-    //             console.log(jsonData);
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-    //     }
+        fetchData();
 
-    //     fetchData();
-
-    //     return () => {
-    //         fetchData
-    //     }
-    // }, []);
-
-    const [products, setProducts] = useState([
-        {
-            price: 15.24,
-            description: "Farmina Vet Консервы для собак, в период восстановления (курица), 300г",
-            image: i1
-        },
-        {
-            price: 15.24,
-            description: "Farmina Vet Консервы для собак, в период восстановления (курица), 300г",
-            image: i2
-        },
-        {
-            price: 15.24,
-            description: "Farmina Vet Консервы для собак, в период восстановления (курица), 300г",
-            image: i3
-        },
-        {
-            price: 15.24,
-            description: "Farmina Vet Консервы для собак, в период восстановления (курица), 300г",
-            image: i4
-        },
-        {
-            price: 15.24,
-            description: "Farmina Vet Консервы для собак, в период восстановления (курица), 300г",
-            image: i5
-        },
-        {
-            price: 15.24,
-            description: "Farmina Vet Консервы для собак, в период восстановления (курица), 300г",
-            image: i6
-        },
-        {
-            price: 15.24,
-            description: "Farmina Vet Консервы для собак, в период восстановления (курица), 300г",
-            image: i6
-        },
-        {
-            price: 15.24,
-            description: "Farmina Vet Консервы для собак, в период восстановления (курица), 300г",
-            image: i6
-        },
-    ])
-
-    const [values, setValues] = useState([
-        {label: "До года", count: 16},
-        {label: "Больше года", count: 16},
-        {label: "Для всех возрастов", count: 16},
-        {label: "Старше 10 лет", count: 16},
-    ])
+        return () => {
+            abortController.abort()
+        }
+    }, []);
 
     const [deliveryPosts, setDeliveryPosts] = useState([
         {
@@ -138,22 +73,21 @@ export function StartPage() {
                         ЗООМАГАЗИН
                     </ZooShop>
                     <Mozy>
-                        MOZY
+                        MOZZY
                     </Mozy>
                     <Container>
-                        <Rectangle/>
+                        <Rectangle />
                         <Description>Товары для вашего питомца</Description>
                     </Container>
-                    <StyledButton width={'233px'} margintop={'66px'}>Перейти в каталог</StyledButton>
                 </TextContainer>
-                <Dog src={dog}/>
+                <Dog src={dog} />
             </PreviewContainer>
             <CategoryContainer>
-                <CategoryBlock categories={categories} values={values}/>
-                <ProductsContainer categories={category} products={products}/>
+                {/* <CategoryBlock categories={categories} values={values} /> */}
+                <ProductsContainer categories={category} products={data} />
             </CategoryContainer>
-            <Paginator/>
-            <DeliveryPostsContainer posts={deliveryPosts}/>
+            {/* <Paginator /> */}
+            <DeliveryPostsContainer posts={deliveryPosts} />
         </Main>
     )
 }
@@ -213,7 +147,8 @@ const PreviewContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  background: linear-gradient(rgba(167, 193, 191, 0), rgba(167, 193, 191, 1));
+  background: rgba(181, 178, 208, 1);
+  border-radius: 20px;
 `
 
 const Main = styled.div`

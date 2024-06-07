@@ -11,13 +11,14 @@ const ProductLayout = (props) => {
     const { isOpen, toggle } = useToggle()
     const [selectedProduct, setSelectedProduct] = useState({})
     const [createModalIsOpen, setCreateModalIsOpen] = useState(false)
+    const [file, setFile] = useState()
 
     useEffect(() => {
         let abortController = new AbortController()
         let { signal } = abortController
 
         async function getData() {
-            let response = await fetch('http://localhost:8080/products', { signal: signal })
+            let response = await fetch('http://localhost:8080/api/admin/products', { signal: signal })
             let jsonResponse = await response.json()
             setProducts(jsonResponse)
             setIsLoad(prev => !prev)
@@ -35,6 +36,17 @@ const ProductLayout = (props) => {
             products.filter(val => val.name.toLowerCase().includes(searchValue.toLowerCase()))
         )
     }, [searchValue, products])
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        const formData = new FormData()
+        formData.append('file', file)
+        console.log(formData);
+        fetch("http://localhost:8080/upload", {
+            method: "POST",
+            body: formData
+        })
+    };
 
     if (isLoad) {
         return (
@@ -151,12 +163,15 @@ const ProductLayout = (props) => {
                 <button
                     type="button"
                     className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm"
-                    onClick={() => 
+                    onClick={() =>
                         setCreateModalIsOpen(prev => !prev)
                     }
                 >
                     Создать
                 </button>
+                <input type="file" onChange={(e) => {
+                    handleFileChange(e)
+                }} />
             </div>
             {isOpen && <UpdateProduct product={selectedProduct} onClose={toggle} />}
             {createModalIsOpen && <CreateProduct product={selectedProduct} onClose={setCreateModalIsOpen} />}

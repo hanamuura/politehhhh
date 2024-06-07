@@ -6,7 +6,7 @@ export const CategoryHeader = ({categories}) => {
     return (
         <CategoryBlock>
             {categories.map(el =>
-                <Category key={el}>{el}</Category>
+                <Category key={el.id}>{el.name}</Category>
             )}
         </CategoryBlock>
     )
@@ -26,13 +26,13 @@ const Category = styled.div`
     bottom: -2px;
     width: 100%;
     height: 2px;
-    background-color: #689F9A;
+    background-color: rgba(181, 178, 208, 1);
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
   
   &:hover {
-    color: #689F9A;
+    color: rgba(181, 178, 208, 1);
   }
 
   &:hover::after,
@@ -50,6 +50,6 @@ const CategoryBlock = styled.div`
   display: flex;
   justify-content: space-around;
   width: 1000px;
-  border-bottom: 1px solid #5C8D87;
+  border-bottom: 1px solid rgba(181, 178, 208, 1);
   height: 20px;
 `
