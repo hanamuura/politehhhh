@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useToggle } from "../../hooks/useToggle";
 import UpdateProduct from "../../modals/UpdateProduct";
 import CreateProduct from "../../modals/CreateProduct";
+import { baseUrl } from "../../constants";
 
 const ProductLayout = (props) => {
     const [products, setProducts] = useState([])
@@ -18,7 +19,7 @@ const ProductLayout = (props) => {
         let { signal } = abortController
 
         async function getData() {
-            let response = await fetch('http://localhost:8080/api/admin/products', { signal: signal })
+            let response = await fetch(`${baseUrl}/admin/products`, { signal: signal })
             let jsonResponse = await response.json()
             setProducts(jsonResponse)
             setIsLoad(prev => !prev)
@@ -37,16 +38,14 @@ const ProductLayout = (props) => {
         )
     }, [searchValue, products])
 
-    const handleFileChange = async (event) => {
-        const file = event.target.files[0];
-        const formData = new FormData()
-        formData.append('file', file)
-        console.log(formData);
-        fetch("http://localhost:8080/upload", {
-            method: "POST",
-            body: formData
-        })
-    };
+    const handleDelete = async (id) => {
+        try{
+            await fetch(`${baseUrl}/admin/products/${id}`, {method: "DELETE"})
+        }catch(err) {
+            console.log(err)
+        }
+        window.location.reload()
+    }
 
     if (isLoad) {
         return (
@@ -151,7 +150,10 @@ const ProductLayout = (props) => {
                                 </button>
                             </td>
                             <td className="px-6 py-4 text-right">
-                                <button className="font-medium text-blue-600 hover:underline">
+                                <button
+                                    className="font-medium text-blue-600 hover:underline"
+                                    onClick={() => handleDelete(item.id)}
+                                >
                                     Удалить
                                 </button>
                             </td>
@@ -169,9 +171,6 @@ const ProductLayout = (props) => {
                 >
                     Создать
                 </button>
-                <input type="file" onChange={(e) => {
-                    handleFileChange(e)
-                }} />
             </div>
             {isOpen && <UpdateProduct product={selectedProduct} onClose={toggle} />}
             {createModalIsOpen && <CreateProduct product={selectedProduct} onClose={setCreateModalIsOpen} />}

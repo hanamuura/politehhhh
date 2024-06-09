@@ -3,60 +3,73 @@ import styled from "styled-components";
 import { Link, Route } from "react-router-dom";
 import { routes } from "../routes";
 import Cookie from 'js-cookie'
+import { baseUrl, staticImagePath } from "../constants";
+import { FaRegHeart } from "react-icons/fa";
+import { MdOutlineImageNotSupported } from "react-icons/md";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const Product = ({ product }) => {
+  const handleAddToFavorite = () => {
+    const userID = JSON.parse(Cookie.get('user')).id;
+    const request = { user_id: userID, product_id: product.id };
+    const fetchData = () => {
+      fetch(`${baseUrl}/v1/products`, {
+        method: "POST",
+        body: JSON.stringify(request)
+      })
+        .then(() => {
+          toast.success('Товар добавлен в избранное', {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+          pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        })
+        .catch(() => {
+          toast.error('Failed to add product to favorites.', {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        });
+    };
+    fetchData();
+  };
+
   return (
     <MainBlock>
+      <FaRegHeart
+        className="self-end mr-4 cursor-pointer"
+        onClick={handleAddToFavorite}
+      />
       <Link
         to={`${product.id}`}
       >
-        <ImageContainer>
-          <Image src={product?.image} />
-        </ImageContainer>
+        {product.image ? <img className="w-[230px] h-[285px]" src={`${staticImagePath}${product.image}`} alt={product.image} /> : <MdOutlineImageNotSupported className="w-[230px] h-[285px]" />}
         <TextContainer>
-          <ProductName>{product.name}</ProductName>
+          <ProductName>{product.name.length > 30 ? `${product.name.slice(0, 20)}...` : product.name}</ProductName>
           <ProductPrice>{product?.price} руб.</ProductPrice>
-          {/* <ProductCategories>
-                    {product.categories.map(el =>
-                        <ProductCategory key={el.name}>
-                            {el.name}
-                        </ProductCategory>)}
-                </ProductCategories> */}
         </TextContainer>
       </Link>
-      <CustomButton
-        onClick={() => {
-          const userID = JSON.parse(Cookie.get('user')).id
-          const request = { user_id: userID, product_id: product.id }
-          const fetchData = () => {
-            fetch('http://localhost:8080/api/v1/products', {
-              method: "POST",
-              body: JSON.stringify(request)
-            })
-          }
-          fetchData()
-        }}
-      >
-        В корзину
-      </CustomButton>
+      <ToastContainer />
     </MainBlock>
   )
 }
+
+// Rest of the component code
 
 const ProductCategories = styled.div`
   display: flex;
 
 `
-
-const ImageContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 260px;
-  height: 313px;
-  background-color: #F7F7F7;
-`
-
 const Image = styled.image`
   width: 222px;
   height: 239px;
@@ -66,7 +79,11 @@ const ProductCategory = styled.label``
 
 const ProductDescription = styled.span``
 
-const ProductName = styled.label``
+const ProductName = styled.label`
+  font-weight: 800;
+  font-size: 15px;
+
+`
 
 const ProductPrice = styled.h4``
 
@@ -74,11 +91,18 @@ const TextContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin: 15px 0;
+  align-items: center;
+  justify-content: center;
 `
 
 const MainBlock = styled.div`
   display: flex;
   flex-direction: column;
-  width: 260px;
-  height: 455px;
+  background-color: #b5b2d051;
+  width: fit-content;
+  padding: 30px;
+  border-radius: 50px;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
 `

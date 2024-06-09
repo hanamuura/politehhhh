@@ -11,9 +11,9 @@ type Product struct {
 	Description  JSONDescription `json:"description"`
 	Price        float64         `json:"price"`
 	Availability int             `json:"availability"`
-	Categories   []Category      `json:"categories"`
+	Categories   *[]Category     `json:"categories"`
+	Image        *string         `json:"image"`
 }
-
 
 type UserProduct struct {
 	ID           uint            `json:"id" gorm:"primary_key"`
@@ -21,9 +21,8 @@ type UserProduct struct {
 	Description  JSONDescription `json:"description"`
 	Price        float64         `json:"price"`
 	Availability int             `json:"availability"`
+	Image        string          `json:"image"`
 }
-
-
 
 type ProductFromDB struct {
 	ID           uint    `json:"id" gorm:"primary_key"`
@@ -31,4 +30,5 @@ type ProductFromDB struct {
 	Description  []byte  `json:"description"`
 	Price        float64 `json:"price"`
 	Availability int     `json:"availability"`
+	Image        *string `json:"image"`
 }

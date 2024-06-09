@@ -15,7 +15,8 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.Static("/public", "/uploads")
+
+	r.Static("/uploads", "./uploads")
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},

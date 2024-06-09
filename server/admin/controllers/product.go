@@ -5,6 +5,7 @@ import (
 	"admin/web-server/admin/services"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -54,6 +55,14 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
 		return
 	}
 
+	if len(product.Categories) == 0 {
+		c.JSON(400, gin.H{
+			"error":   "no categories",
+			"product": product,
+		})
+		return
+	}
+
 	dst := fmt.Sprintf("uploads/%s", product.Image.Filename)
 	if err := c.SaveUploadedFile(product.Image, dst); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -70,4 +79,14 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, product)
+}
+
+func (pc *ProductController) DeleteProduct(c *gin.Context) {
+	paramId := c.Param("id")
+	id, _ := strconv.Atoi(paramId)
+	fmt.Println(id)
+	fmt.Println(paramId)
+	if err := pc.service.DeleteProduct(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+	}
 }

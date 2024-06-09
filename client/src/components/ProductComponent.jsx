@@ -1,13 +1,14 @@
 import React from "react"
 import { TiHeartOutline } from "react-icons/ti";
 import img from "C://Users/Administrator/Downloads/247ff780541a952faa54f64fcf20e58b.jpg"
+import { staticImagePath } from "../constants";
 
 const ProductComponent = (props) => {
     return (
         <div className="flex flex-col pr-[42px] pl-[42px] gap-4 md:pr-[106px] md:pl-[42px]">
             <div className="flex flex-col md:flex-row items-center justify-between">
                 <div className="rounded-2xl bg-slate-500">
-                    <img src={img} className="w-full h-auto p-4 md:w-[468px] md:h-[475px]" />
+                    <img src={`${staticImagePath}${props.product.image}`} className="w-full h-auto p-4 md:w-[468px] md:h-[475px]" />
                 </div>
                 <div className="flex flex-col mt-4 md:mt-0">
                     <div className="w-full md:w-[300px]">

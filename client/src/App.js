@@ -19,7 +19,9 @@ import Login from './modals/Login';
 import { useToggle } from './hooks/useToggle';
 import { FaUser } from "react-icons/fa6";
 import Cookies from 'js-cookie';
-import Bucket from './pages/Bucket';
+import { Bucket } from './pages/Bucket';
+import { FaArrowUp } from 'react-icons/fa';
+import logoFooter from './images/logoFooter.svg'
 
 function App() {
 
@@ -33,10 +35,8 @@ function App() {
     }
   }, [])
 
-  console.log(currentUser)
-
   return (
-    <div className=''>
+    <div className='flex flex-col'>
       {location.pathname !== routes.admin && (
         <Header>
           <LogoContainer>
@@ -51,7 +51,6 @@ function App() {
             <Container>
               <Link to={routes.bucket}>
                 <FavouriteLogo src={favouriteLogo} />
-                <Circle>3</Circle>
               </Link>
             </Container>
             {currentUser ? <Link to={routes.user}><FaUser className='w-[25px] h-[25px]' /></Link> : <CustomButton onClick={toggle}>Войти</CustomButton>}
@@ -66,6 +65,20 @@ function App() {
         <Route path={routes.bucket} element={<Bucket />} />
       </Routes>
       {isOpen && <Login isOpen={isOpen} onClose={toggle} />}
+      {location.pathname !== routes.admin && (
+        <footer className="flex w-[98%] h-[500px] relative bg-[#B5B2D0] rounded-[20px] mt-32 ml-5 mr-5 mb-5 self-center">
+          <div className="absolute top-[-15%] left-[75%] h-[200px] w-[200px] rounded-[50%] border-white border-[20px] bg-[#7E83AE] flex items-center justify-center">
+            <FaArrowUp className="h-[80px] text-white w-[60px]" />
+          </div>
+          <div className="flex mt-[90px] ml-[90px]">
+            <div className="flex flex-col w-[300px] text-white gap-8">
+              <img src={logoFooter} className='w-[150px] h-[50px]' />
+              <p>В нашем зоомагазине вы найдете все необходимые товары для различных видов животных.</p>
+              <p>+375 (33) 200-42-90</p>
+              <p>mozzy_petshop@gmail.com</p>
+            </div>
+          </div>
+        </footer>)}
     </div>
 
   );

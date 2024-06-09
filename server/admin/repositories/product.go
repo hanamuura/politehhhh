@@ -17,7 +17,7 @@ func NewProductRepository(database *db.DataBase) *ProductRepository {
 func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
 	query := `
         SELECT 
-            p.id, p.name, p.description, p.price, p.availability,
+            p.id, p.name, p.description, p.price, p.availability, 
             c.id AS category_id, c.name AS category_name
         FROM product p
         LEFT JOIN product_categories pc ON p.id = pc.product_id
@@ -52,18 +52,18 @@ func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
 				Description:  models.JSONDescription{},
 				Price:        product.Price,
 				Availability: product.Availability,
+				Categories:   &[]models.Category{},
 			}
 		}
 
-		if entry, ok := productsAsJSON[int(product.ID)]; ok {
-			json.Unmarshal(product.Description, &entry.Description)
-			productsAsJSON[int(product.ID)] = entry
+		entry := productsAsJSON[int(product.ID)]
+		json.Unmarshal(product.Description, &entry.Description)
+
+		if category.ID != nil && *category.ID != 0 {
+			*entry.Categories = append(*entry.Categories, category)
 		}
 
-		if entry, ok := productsAsJSON[int(product.ID)]; ok {
-			entry.Categories = append(entry.Categories, models.Category{ID: category.ID, Name: category.Name})
-			productsAsJSON[int(product.ID)] = entry
-		}
+		productsAsJSON[int(product.ID)] = entry
 	}
 
 	if err := rows.Err(); err != nil {
@@ -84,8 +84,7 @@ func (pr *ProductRepository) CreateProduct(product models.CreateProduct) error {
 		return err
 	}
 
-	// Вставляем запись о продукте
-	stmt, err := pr.db.Prepare("INSERT INTO product(name, description, price, availability, image_path) VALUES ($1, $2, $3, $4, $5) RETURNING id")
+	stmt, err := pr.db.Prepare("INSERT INTO product(name, description, price, availability, image) VALUES ($1, $2, $3, $4, $5) RETURNING id")
 	if err != nil {
 		return err
 	}
@@ -97,9 +96,8 @@ func (pr *ProductRepository) CreateProduct(product models.CreateProduct) error {
 		return err
 	}
 
-	// Вставляем связи между продуктом и категориями
 	for _, cat := range product.Categories {
-		stmt, err = pr.db.Prepare("INSERT INTO product_categories(product_id, categories_id) VALUES ($1, $2)")
+		stmt, err = pr.db.Prepare("INSERT INTO product_categories(product_id, category_id) VALUES ($1, $2)")
 		if err != nil {
 			return err
 		}
@@ -123,9 +121,16 @@ func (pr *ProductRepository) GetProductById(id string) (models.Product, error) {
 		return models.Product{}, err
 	}
 	json.Unmarshal(productFromDB.Description, &product.Description)
-	product.Categories, err = pr.GetCategoriesOfProduct(product.ID)
+
+	categories, err := pr.GetCategoriesOfProduct(product.ID)
 	if err != nil {
 		return models.Product{}, err
+	}
+
+	if product.Categories == nil {
+		product.Categories = &categories
+	} else {
+		*product.Categories = categories
 	}
 
 	return product, nil
@@ -205,4 +210,13 @@ func (pr *ProductRepository) GetCategoriesOfProduct(productID uint) ([]models.Ca
 	}
 
 	return categories, nil
+}
+
+func (pr *ProductRepository) DeleteProduct(id int) error {
+	query := `delete from product where id=$1`
+
+	if _, err := pr.db.Exec(query, id); err != nil {
+		return err
+	}
+	return nil
 }

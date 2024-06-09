@@ -57,12 +57,12 @@ const CreateProduct = ({ onClose, onSave }) => {
         formData.append('description', JSON.stringify(newProduct.description));
         formData.append('price', newProduct.price);
         formData.append('availability', newProduct.availability);
-        newProduct.categories.forEach((category) => {
-            formData.append('categories[]', category);
-        });
+        for (let i = 0; i < newProduct.categories.length; i++) {
+            formData.append('categories[]', JSON.stringify(newProduct.categories[i]));
+        }
         formData.append('image', image);
-
-        console.log(formData);
+        console.log(formData.get("categories"))
+        console.log(formData)
 
         try {
             fetch('http://localhost:8080/api/admin/products', {

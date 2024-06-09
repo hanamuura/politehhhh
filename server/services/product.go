@@ -54,3 +54,7 @@ func (ps *ProductService) CreateProductUser(userID int, productID int) (error) {
 func (ps *ProductService) GetProductUser(userID int) ([]models.UserProduct, error) {
 	return ps.repo.GetProductUser(userID)
 }
+
+func (ps *ProductService) DeleteFavourites(userID int, productID int) (error) {
+	return 
+}

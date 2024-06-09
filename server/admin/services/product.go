@@ -53,3 +53,10 @@ func (ps *ProductService) GetProductsByCategory(category models.Category) ([]mod
 	}
 	return products, nil
 }
+
+func (ps *ProductService) DeleteProduct(id int) (error) {
+	if err := ps.repo.DeleteProduct(id); err != nil {
+		return err
+	}
+	return nil
+}

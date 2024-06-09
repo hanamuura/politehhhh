@@ -13,7 +13,7 @@ type Product struct {
 	Description  JSONDescription `json:"description"`
 	Price        float64         `json:"price"`
 	Availability int             `json:"availability"`
-	Categories   []Category     `json:"categories"`
+	Categories   *[]Category     `json:"categories"`
 }
 
 type ProductFromDB struct {
@@ -29,6 +29,11 @@ type CreateProduct struct {
 	Description  JSONDescription       `form:"description"`
 	Price        float64               `form:"price"`
 	Availability int                   `form:"availability"`
-	Categories   []Category            `form:"categories"`
+	Categories   []CreateCategory      `form:"categories[]"`
 	Image        *multipart.FileHeader `form:"image"`
+}
+
+type CreateCategory struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }

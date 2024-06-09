@@ -18,7 +18,7 @@ func NewProductRepository(database *db.DataBase) *ProductRepository {
 func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
 	query := `
         SELECT 
-            p.id, p.name, p.description, p.price, p.availability,
+            p.id, p.name, p.description, p.price, p.availability, p.image,
             c.id AS category_id, c.name AS category_name
         FROM product p
         LEFT JOIN product_categories pc ON p.id = pc.product_id
@@ -40,10 +40,16 @@ func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
 			&product.Description,
 			&product.Price,
 			&product.Availability,
+			&product.Image,
 			&category.ID,
 			&category.Name,
 		); err != nil {
 			return nil, err
+		}
+
+		if product.Image == nil {
+			product.Image = new(string)
+			*product.Image = ""
 		}
 
 		if _, ok := productsAsJSON[int(product.ID)]; !ok {
@@ -53,18 +59,19 @@ func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
 				Description:  models.JSONDescription{},
 				Price:        product.Price,
 				Availability: product.Availability,
+				Image:        product.Image,
+				Categories:   &[]models.Category{},
 			}
 		}
 
-		if entry, ok := productsAsJSON[int(product.ID)]; ok {
-			json.Unmarshal(product.Description, &entry.Description)
-			productsAsJSON[int(product.ID)] = entry
+		entry := productsAsJSON[int(product.ID)]
+		json.Unmarshal(product.Description, &entry.Description)
+
+		if category.ID != nil && *category.ID != 0 {
+			*entry.Categories = append(*entry.Categories, category)
 		}
 
-		if entry, ok := productsAsJSON[int(product.ID)]; ok {
-			entry.Categories = append(entry.Categories, models.Category{ID: category.ID, Name: category.Name})
-			productsAsJSON[int(product.ID)] = entry
-		}
+		productsAsJSON[int(product.ID)] = entry
 	}
 
 	if err := rows.Err(); err != nil {
@@ -88,9 +95,16 @@ func (pr *ProductRepository) GetProductById(id string) (models.Product, error) {
 		return models.Product{}, err
 	}
 	json.Unmarshal(productFromDB.Description, &product.Description)
-	product.Categories, err = pr.GetCategoriesOfProduct(product.ID)
+
+	categories, err := pr.GetCategoriesOfProduct(product.ID)
 	if err != nil {
 		return models.Product{}, err
+	}
+
+	if product.Categories == nil {
+		product.Categories = &categories
+	} else {
+		*product.Categories = categories
 	}
 
 	return product, nil
@@ -186,7 +200,7 @@ func (pr *ProductRepository) CreateProductUser(userID int, productID int) error 
 
 func (pr *ProductRepository) GetProductUser(userID int) ([]models.UserProduct, error) {
 	query := `
-		select p.name, p.availability, p.description, p.price, p.id
+		select p.name, p.availability, p.description, p.price, p.id, p.image
 			from product as p	
 		inner join user_product as up on p.id = up.product_id
 		where up.user_id = $1
@@ -206,10 +220,20 @@ func (pr *ProductRepository) GetProductUser(userID int) ([]models.UserProduct, e
 			&description,
 			&product.Price,
 			&product.ID,
+			&product.Image,
 		)
 		json.Unmarshal(description, &product.Description)
 		fmt.Println(product.Name)
 		products = append(products, product)
 	}
 	return products, nil
+}
+
+func (pr *ProductRepository) DeleteFavourites(userID int, productID int) (error){
+	query := `DELETE FROM user_product
+	WHERE user_id = $2 and product_id = $2`
+	if _, err := pr.db.Exec(query, userID, productID); err != nil {
+		return err
+	}
+	return nil
 }

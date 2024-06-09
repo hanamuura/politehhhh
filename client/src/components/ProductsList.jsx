@@ -8,18 +8,21 @@ export const ProductsList = ({ products }) => {
         return <>Loading...</>
     }
 
+    console.log(products)
+
     return (
         <MainBlock>
             {products.map(product =>
-                    <Product key={product.name} product={product} />
-                )}
+                <Product key={product.id} product={product} />
+            )}
         </MainBlock>
     )
 }
 
 const MainBlock = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
   width: 100%;
-`
+  grid-auto-rows: 1fr; 
+`;

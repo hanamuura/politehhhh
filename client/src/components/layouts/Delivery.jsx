@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react"
 import Cookies from "js-cookie";
+import { baseUrl } from "../../constants";
+
 
 const Delivery = (props) => {
     const [products, setProducts] = useState()
@@ -7,9 +9,9 @@ const Delivery = (props) => {
     useEffect(() => {
         const userID = JSON.parse(Cookies.get('user')).id
         const fetchData = async () => {
-            let response = await fetch(`http://localhost:8080/api/v1/orders/?user_id=${userID}`)
+            
+            let response = await fetch(`${baseUrl}/v1/orders/?user_id=${userID}`)
             let jsonResponse = await response.json()
-            console.log(jsonResponse)
             setProducts(jsonResponse)
             setIsLoad(prev => !prev)
         }
@@ -20,13 +22,13 @@ const Delivery = (props) => {
         return (
             <>
                 Нету товаров
+                {process.env.BASE_URL}
             </>
         )
     }
 
     return (
         <div>
-
         </div>
     )
 };

@@ -1,6 +1,8 @@
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react"
 import { ProductsList } from "../ProductsList";
+import { baseUrl } from "../../constants";
+import FavouritesProductList from "../FavouritesProductList";
 
 const Favourites = (props) => {
     const [products, setProducts] = useState()
@@ -8,7 +10,7 @@ const Favourites = (props) => {
     useEffect(() => {
         const userID = JSON.parse(Cookies.get('user')).id
         const fetchData = async () => {
-            let response = await fetch(`http://localhost:8080/api/v1/products?user_id=${userID}`)
+            let response = await fetch(`${baseUrl}/v1/products?user_id=${userID}`)
             let jsonResponse = await response.json()
             console.log(jsonResponse)
             setProducts(jsonResponse)
@@ -29,8 +31,8 @@ const Favourites = (props) => {
     }
 
     return (
-        <div className="flex w-full">
-            <ProductsList products={products} />
+        <div className="flex w-full pl-5">
+            <FavouritesProductList products={products}/>
         </div>
     )
 };
