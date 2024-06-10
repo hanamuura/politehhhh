@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { staticImagePath } from "../constants";
+import { baseUrl, staticImagePath } from "../constants";
+import Cookies from "js-cookie";
 
 const BucketProduct = ({ product, setSelected, all }) => {
   const [isSelected, setIsSelected] = useState(false);
@@ -44,11 +45,18 @@ const BucketProduct = ({ product, setSelected, all }) => {
       </div>
       <div className="flex flex-col items-center justify-center">
         <h1 className="font-bold text-2xl">{product.price} BYN</h1>
-        <div className="flex justify-center">
-          <button>
-            <FaRegTrashAlt />
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            let userID = Cookies.get('user').id
+            let body = { user_id: userID, product_id: product.id }
+            fetch(`${baseUrl}/v1/products`, {
+              method: "DELETE",
+              body: JSON.stringify(body)
+            })
+          }}
+        >
+          <FaRegTrashAlt />
+        </button>
       </div>
     </div>
   );

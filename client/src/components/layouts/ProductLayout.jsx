@@ -3,6 +3,8 @@ import { useToggle } from "../../hooks/useToggle";
 import UpdateProduct from "../../modals/UpdateProduct";
 import CreateProduct from "../../modals/CreateProduct";
 import { baseUrl } from "../../constants";
+import { toast } from 'react-toastify';
+
 
 const ProductLayout = (props) => {
     const [products, setProducts] = useState([])
@@ -39,13 +41,14 @@ const ProductLayout = (props) => {
     }, [searchValue, products])
 
     const handleDelete = async (id) => {
-        try{
-            await fetch(`${baseUrl}/admin/products/${id}`, {method: "DELETE"})
-        }catch(err) {
-            console.log(err)
+        try {
+            await fetch(`${baseUrl}/admin/products/${id}`, { method: "DELETE" }).catch(err => alert(err));
+            toast.success('Успешно удалено');
+        } catch (err) {
+            console.log(err);
+            toast.error('Удаление невозможно т.к. товар заказан');
         }
-        window.location.reload()
-    }
+    };
 
     if (isLoad) {
         return (

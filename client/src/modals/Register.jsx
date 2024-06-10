@@ -2,8 +2,9 @@ import React, { useContext, useState } from "react";
 import CustomButton from "../components/UI/CustomButton";
 import { UserContext } from "../components/contexts/UserContext";
 import Cookies from 'js-cookie';
+import { baseUrl } from "../constants";
 
-const Login = ({ isOpen, onClose }) => {
+const Register = ({ isOpen, onClose }) => {
     const {currentUser, login, logout} = useContext(UserContext)    
     const [user, setUser] = useState({ username: "", password: "", email: ""})
     const handleClose = () => {
@@ -11,16 +12,17 @@ const Login = ({ isOpen, onClose }) => {
     };
 
     const loginUser = async () => {
-        const response = await fetch('http://localhost:8080/api/login', {
+        console.log(user)
+        const response = await fetch(`${baseUrl}/register`, {
             method: "POST",
             body: JSON.stringify(user)
         })
-        const jsonAnswer = await response.json()
-        if (jsonAnswer.id != 0){
+        console.log(response)
+        if (response.status === 200){
+            Cookies.set('user', JSON.stringify(user))
             window.location.reload()
-            login(jsonAnswer)
-            onClose()
-            Cookies.set('user', JSON.stringify(jsonAnswer), {expires: 7})
+        } else {
+            alert(`Пользователь с таким именем уже существует`)
         }
     }
 
@@ -53,7 +55,7 @@ const Login = ({ isOpen, onClose }) => {
                                 className="text-lg leading-6 font-medium text-gray-900"
                                 id="modal-headline"
                             >
-                                Логин
+                                Регистрация
                             </h3>
                             <div className="mt-2 flex flex-col gap-4">
                                 <input
@@ -67,6 +69,12 @@ const Login = ({ isOpen, onClose }) => {
                                     placeholder="password"
                                     onChange={e => setUser(prev => ({...prev, password: e.target.value}))}
                                 />
+                                <input
+                                    type="email"
+                                    className="p-2 pl-5 rounded-[20px] border-[1px] border-primary focus:outline-none"
+                                    placeholder="email"
+                                    onChange={e => setUser(prev => ({...prev, email: e.target.value}))}
+                                />
                             </div>
                         </div>
                     </div>
@@ -74,7 +82,7 @@ const Login = ({ isOpen, onClose }) => {
                         <CustomButton
                             onClick={() => loginUser()}
                         >
-                            Войти
+                            Зарегистрироваться
                         </CustomButton>
                     </div>
                 </div>
@@ -83,4 +91,4 @@ const Login = ({ isOpen, onClose }) => {
     );
 };
 
-export default Login;
+export default Register;

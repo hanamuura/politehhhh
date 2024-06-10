@@ -17,7 +17,7 @@ const ProfilePage = () => {
     <div className="w-full">
       <ProfileTabs tab={tab ? +tab : 0}>
         <Tab className="flex w-full" title="Личные данные"><Profile/></Tab>
-        <Tab className="flex w-full" title="Избранное"><Favourites/></Tab>
+        <Tab className="flex w-full" title="Корзина"><Favourites/></Tab>
         <Tab className="flex w-full" title="Доставка"><Delivery/></Tab>
       </ProfileTabs>
     </div>

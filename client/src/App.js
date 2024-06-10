@@ -14,7 +14,7 @@ import ProductPage from './pages/ProductPage';
 import ProfilePage from './pages/ProfilePage';
 import LogoIcon from './components/LogoIcon';
 import { UserProvider, UserContext } from './components/contexts/UserContext';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Login from './modals/Login';
 import { useToggle } from './hooks/useToggle';
 import { FaUser } from "react-icons/fa6";
@@ -22,12 +22,16 @@ import Cookies from 'js-cookie';
 import { Bucket } from './pages/Bucket';
 import { FaArrowUp } from 'react-icons/fa';
 import logoFooter from './images/logoFooter.svg'
+import Register from './modals/Register';
+import { IoLogOut } from 'react-icons/io5';
+import PageNotFound from './pages/PageNotFound';
 
 function App() {
 
   const location = useLocation()
   const { currentUser, login, logout } = useContext(UserContext)
   const { isOpen, toggle } = useToggle()
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false)
   useEffect(() => {
     const user = Cookies.get('user')
     if (user) {
@@ -53,7 +57,14 @@ function App() {
                 <FavouriteLogo src={favouriteLogo} />
               </Link>
             </Container>
-            {currentUser ? <Link to={routes.user}><FaUser className='w-[25px] h-[25px]' /></Link> : <CustomButton onClick={toggle}>Войти</CustomButton>}
+            {currentUser ? <><Link to={routes.user}><FaUser className='w-[25px] h-[25px]' /></Link>
+              <IoLogOut
+                onClick={() => {
+                  Cookies.remove('user')
+                  window.location.reload()
+                }}
+                className='w-[25px] h-[25px] cursor-pointer'
+                /></> : <div className='flex gap-2'><CustomButton onClick={toggle}>Войти</CustomButton> <CustomButton onClick={() => setIsRegisterOpen(true)}>Регстрация</CustomButton></div>}
           </AuthContainer>
         </Header>
       )}
@@ -63,8 +74,10 @@ function App() {
         <Route path={routes.product} element={<ProductPage />} />
         <Route path={routes.user} element={<ProfilePage />} />
         <Route path={routes.bucket} element={<Bucket />} />
+        <Route path='*' element={<div className='flex justify-center items-center'>404 :(</div>}/>
       </Routes>
       {isOpen && <Login isOpen={isOpen} onClose={toggle} />}
+      {isRegisterOpen && <Register isOpen={isRegisterOpen} onClose={setIsRegisterOpen} />}
       {location.pathname !== routes.admin && (
         <footer className="flex w-[98%] h-[500px] relative bg-[#B5B2D0] rounded-[20px] mt-32 ml-5 mr-5 mb-5 self-center">
           <div className="absolute top-[-15%] left-[75%] h-[200px] w-[200px] rounded-[50%] border-white border-[20px] bg-[#7E83AE] flex items-center justify-center">

@@ -30,7 +30,7 @@ export function StartPage() {
           signal: signal
         });
         const categories = await fetch(`${baseUrl}/admin/categories`)
-        
+
         const productsJsonData = await products.json();
         const categoriesJsonData = await categories.json()
         setData(productsJsonData.sort((a, b) => a.id - b.id))
@@ -122,7 +122,12 @@ const TextContainer = styled.div`
 
 `
 
-const Dog = styled.img``
+const Dog = styled.img`
+
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+`
 
 const PreviewContainer = styled.div`
   display: flex;

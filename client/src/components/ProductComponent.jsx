@@ -38,7 +38,7 @@ const ProductComponent = (props) => {
                     </div>
                 </div>
                 <div>
-                    {props.product.description.body}
+                    {props.product.description?.body}
                 </div>
             </div>
         </div>

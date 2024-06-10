@@ -56,5 +56,5 @@ func (ps *ProductService) GetProductUser(userID int) ([]models.UserProduct, erro
 }
 
 func (ps *ProductService) DeleteFavourites(userID int, productID int) (error) {
-	return 
+	return ps.repo.DeleteFavourites(userID, productID)
 }

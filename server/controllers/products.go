@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"admin/web-server/services"
-	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ProductController struct {
@@ -56,20 +56,29 @@ func (pc *ProductController) GetProductById(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
-type CreateUserProduct struct {
+type UserProduct struct {
 	ProductID int `json:"product_id"`
 	UserID    int `json:"user_id"`
 }
 
 func (pc *ProductController) CreateProductUser(c *gin.Context) {
-	var body CreateUserProduct
+	var body UserProduct
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	val := strconv.Itoa(body.ProductID)
-	fmt.Println("asdfa    :   " + val)
 	pc.service.CreateProductUser(body.ProductID, body.UserID)
+}
+
+func (pc *ProductController) DeleteProduct(c *gin.Context) {
+	var body UserProduct
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	pc.service.DeleteFavourites(body.UserID, body.ProductID)
 }

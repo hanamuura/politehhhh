@@ -33,7 +33,7 @@ func (ar *AuthRepository) Register(newUser models.User) error {
 		return err
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO custom_user(username, password, email, is_superuser) values ( $1, $2, $3, $4 )")
+	stmt, err := tx.Prepare("INSERT INTO custom_user(username, password, email, is_superuser) values ( $1, $2, $3, $4 ) ")
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -41,6 +41,7 @@ func (ar *AuthRepository) Register(newUser models.User) error {
 	defer stmt.Close()
 
 	stmt.QueryRow(newUser.Username, newUser.Password, newUser.Email, newUser.IsSuper)
+	
 	err = tx.Commit()
 	if err != nil {
 		tx.Rollback()

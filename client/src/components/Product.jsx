@@ -4,7 +4,7 @@ import { Link, Route } from "react-router-dom";
 import { routes } from "../routes";
 import Cookie from 'js-cookie'
 import { baseUrl, staticImagePath } from "../constants";
-import { FaRegHeart } from "react-icons/fa";
+import { CiCirclePlus } from "react-icons/ci";
 import { MdOutlineImageNotSupported } from "react-icons/md";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -46,12 +46,12 @@ export const Product = ({ product }) => {
 
   return (
     <MainBlock>
-      <FaRegHeart
-        className="self-end mr-4 cursor-pointer"
+      <CiCirclePlus
+        className="self-end mr-4 cursor-pointer w-6 h-6"
         onClick={handleAddToFavorite}
       />
       <Link
-        to={`${product.id}`}
+        to={`products/${product.id}`}
       >
         {product.image ? <img className="w-[230px] h-[285px]" src={`${staticImagePath}${product.image}`} alt={product.image} /> : <MdOutlineImageNotSupported className="w-[230px] h-[285px]" />}
         <TextContainer>

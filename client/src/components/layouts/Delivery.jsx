@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import Cookies from "js-cookie";
 import { baseUrl } from "../../constants";
+import FavouritesProductList from "../FavouritesProductList";
 
 
 const Delivery = (props) => {
@@ -12,23 +13,24 @@ const Delivery = (props) => {
             
             let response = await fetch(`${baseUrl}/v1/orders/?user_id=${userID}`)
             let jsonResponse = await response.json()
+            console.log(jsonResponse);
             setProducts(jsonResponse)
             setIsLoad(prev => !prev)
         }
         fetchData()
     }, [])
 
-    if (!products) {
+    if (!isLoad) {
         return (
             <>
                 Нету товаров
-                {process.env.BASE_URL}
             </>
         )
     }
 
     return (
         <div>
+            {/* <FavouritesProductList products={products}/> */}
         </div>
     )
 };
