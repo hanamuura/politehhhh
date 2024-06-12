@@ -15,13 +15,15 @@ func NewOrderRepository(database *db.DataBase) *OrderRepository {
 
 func (or *OrderRepository) GetAllOrders() ([]models.Order, error) {
 	query := `SELECT 
-    	o.id, 
-    	o.order_date, 
-    	o.order_status,
-    	os.name,
-		o.product_id
+		o.id, 
+		o.order_date, 
+		o.order_status,
+		os.name,
+		o.product,
+		u.username
 	FROM public.order o
-	LEFT JOIN public.order_status os ON o.order_status = os.id;`
+	LEFT JOIN public.order_status os ON o.order_status = os.id
+	LEFT JOIN public.user u ON o.user_id = u.id;`
 	rows, err := or.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -59,23 +61,43 @@ func (or *OrderRepository) CreateOrder(order models.CreateOrder) error {
 	return nil
 }
 
-func (or *OrderRepository) GetUserOrders(userID int) ([]models.Order, error) {
+func (or *OrderRepository) GetUserOrders(userID int) ([]models.GetOrder, error) {
 	query := `
-		select * from public.order where user_id=$1
+		SELECT
+			o.id,
+			o.order_date,
+			os.name AS order_status,
+			p.name AS product,
+			p.id AS product_id,
+			p.price AS product_price,
+			u.username
+		FROM
+			public.order o
+			LEFT JOIN public.order_status os ON o.order_status = os.id
+			LEFT JOIN public.product p ON o.product = p.id
+			LEFT JOIN public.custom_user u ON o.user_id = u.id
+		WHERE
+			o.user_id = $1;
 	`
-	var userOrders []models.Order
+	var userOrders []models.GetOrder
 	rows, err := or.db.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		var order models.Order
-		rows.Scan(
+		var order models.GetOrder
+		err := rows.Scan(
 			&order.ID,
 			&order.OrderDate,
 			&order.OrderStatus,
+			&order.Product,
 			&order.ProductID,
+			&order.ProductPrice,
+			&order.Username,
 		)
+		if err != nil {
+			return nil, err
+		}
 		userOrders = append(userOrders, order)
 	}
 	return userOrders, nil

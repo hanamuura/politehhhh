@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { baseUrl } from '../constants';
 
 const CreateProduct = ({ onClose, onSave }) => {
     const [newProduct, setNewProduct] = useState({
@@ -15,7 +16,7 @@ const CreateProduct = ({ onClose, onSave }) => {
 
     useEffect(() => {
         async function fetchData() {
-            const response = await fetch("http://localhost:8080/api/admin/categories")
+            const response = await fetch(`${baseUrl}/admin/categories`)
             const data = await response.json()
             setCategories(data)
             setLoaded(prev => !prev)

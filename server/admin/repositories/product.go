@@ -4,6 +4,7 @@ import (
 	"admin/web-server/admin/models"
 	"admin/web-server/db"
 	"encoding/json"
+	"strconv"
 )
 
 type ProductRepository struct {
@@ -219,4 +220,64 @@ func (pr *ProductRepository) DeleteProduct(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (pr *ProductRepository) UpdateProduct(newProduct models.UpdateProduct) (models.Product, error) {
+	query := `UPDATE product 
+		SET name = $1, 
+		    description = $2, 
+		    price = $3, 
+		    availability = $4
+		WHERE id = $5`
+
+	description, err := json.Marshal(newProduct.Description)
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	result, err := pr.db.Exec(query, newProduct.Name, description, newProduct.Price, newProduct.Availability, newProduct.ID)
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	err = pr.updateProductCategories(newProduct.ID, newProduct.Categories)
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	updatedID, err := result.LastInsertId()
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	updatedProduct, err := pr.GetProductById(strconv.Itoa(int(updatedID)))
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	return updatedProduct, nil
+}
+
+func (pr *ProductRepository) updateProductCategories(productID int, categories []*uint) error {
+	tx, err := pr.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec("DELETE FROM product_category WHERE product_id = ?", productID)
+	if err != nil {
+		return err
+	}
+
+	for _, categoryID := range categories {
+		if categoryID != nil {
+			_, err = tx.Exec("INSERT INTO product_category (product_id, category_id) VALUES (?, ?)", productID, *categoryID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return tx.Commit()
 }

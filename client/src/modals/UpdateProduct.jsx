@@ -1,7 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { baseUrl } from '../constants';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const EditProductModal = ({ product, onClose }) => {
     const [updatedProduct, setUpdatedProduct] = useState(product);
+    const [categories, setCategories] = useState()
+    const [loaded, setLoaded] = useState()
+
+    useEffect(() => {
+        async function fetchData() {
+            const response = await fetch(`${baseUrl}/admin/categories`)
+            const data = await response.json()
+            setCategories(data)
+            setLoaded(prev => !prev)
+        }
+        fetchData()
+    }, [])
+
+    const handleCategoryChange = (category) => {
+        if (updatedProduct.categories.includes(category)) {
+            setUpdatedProduct((prevProduct) => ({
+                ...prevProduct,
+                categories: prevProduct.categories.filter(c => c.id !== category.id),
+            }));
+        } else {
+            setUpdatedProduct((prevProduct) => ({
+                ...prevProduct,
+                categories: [...prevProduct.categories, category],
+            }));
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -10,6 +40,40 @@ const EditProductModal = ({ product, onClose }) => {
             [name]: value,
         }));
     };
+
+    const handleSaveButton = () => {
+        let formData = new FormData()
+        formData.append('name', updatedProduct.name);
+        formData.append('description', JSON.stringify(updatedProduct.description));
+        let categories = updatedProduct.categories.map(cat => cat.id)
+        formData.append('categories', categories)
+        formData.append('id', updatedProduct.id)
+        formData.append('price', updatedProduct.price)
+        formData.append('availability', updatedProduct.availability)
+        fetch(`${baseUrl}/admin/products`, {
+            method: "PUT",
+            body: formData
+        }).then(res => toast.success('Товар успешно обновлен', {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        })).catch(err => {
+            toast.error(`${err}`, {
+                position: "bottom-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
+            console.log(err)
+        })
+    }
 
     return (
         <div
@@ -85,16 +149,7 @@ const EditProductModal = ({ product, onClose }) => {
                                 <label className="block text-sm font-medium text-gray-700">
                                     Категории
                                 </label>
-                                <ul className="mt-2">
-                                    {updatedProduct.categories.map((category, index) => (
-                                        <li
-                                            key={category.id}
-                                            className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-200 text-blue-800 mr-2"
-                                        >
-                                            {category.name}
-                                        </li>
-                                    ))}
-                                </ul>
+                                {categories && categories.map(val => (<div><input type='checkbox' onChange={() => handleCategoryChange(val)} /><label>{val.name}</label></div>))}
                             </div>
                         </div>
                     </div>
@@ -102,6 +157,7 @@ const EditProductModal = ({ product, onClose }) => {
                         <button
                             type="button"
                             className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                            onClick={() => handleSaveButton()}
                         >
                             Сохранить
                         </button>
@@ -115,6 +171,7 @@ const EditProductModal = ({ product, onClose }) => {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };

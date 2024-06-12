@@ -23,5 +23,6 @@ func (pr *ProductRoutes) RegisterRoutes(r *gin.RouterGroup) {
 		productRoutes.GET("/:id", pr.productsController.GetProductById)
 		productRoutes.POST("", pr.productsController.CreateProduct)
 		productRoutes.DELETE("/:id", pr.productsController.DeleteProduct)
+		productRoutes.PUT("", pr.productsController.UpdateProduct)
 	}
 }

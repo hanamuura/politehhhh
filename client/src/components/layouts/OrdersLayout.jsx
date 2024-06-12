@@ -1,13 +1,13 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { useState } from "react";
+import { baseUrl } from "../../constants";
 
 const OrdersLayout = (props) => {
-  const [orders,] = useState([
-    { id: 2, order_date: '23.23.23', status: { id: 1, name: 'Начато' } },
-    { id: 3, order_date: '23.23.23', status: { id: 2, name: 'В процессе' } },
-    { id: 4, order_date: '23.23.23', status: { id: 3, name: 'Завершено' } },
-    { id: 1, order_date: '23.23.23', status: { id: 4, name: 'Завершено' } },
-  ])
+  const [orders,] = useState([])
+
+  useEffect(() => {
+    let json = fetch(`${baseUrl}/orders`)
+  }, [])
 
   return (
     <div className="relative orverflow-x-auto">

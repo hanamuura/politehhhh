@@ -3,7 +3,8 @@ import ProductLayout from "../components/layouts/ProductLayout";
 import OrdersLayout from "../components/layouts/OrdersLayout";
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import Tabs, {Tab} from "../components/tabs/AdminTabs";
+import Tabs, { Tab } from "../components/tabs/AdminTabs";
+import { Link } from "react-router-dom";
 
 const AdminPage = () => {
     const [user, setUser] = useState()
@@ -25,7 +26,7 @@ const AdminPage = () => {
 
 
     return (
-        <div className="">
+        <div className="flex items-center">
             <Tabs>
                 <Tab title="Товары">
                     <ProductLayout />

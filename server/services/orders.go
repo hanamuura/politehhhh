@@ -31,6 +31,6 @@ func (os *OrderService) CreateOrder(order models.CreateOrder) error {
 	return os.repo.CreateOrder(order)
 }
 
-func (os *OrderService) GetUserOrders(userID int) ([]models.Order, error){
+func (os *OrderService) GetUserOrders(userID int) ([]models.GetOrder, error){
 	return os.repo.GetUserOrders(userID)
 }

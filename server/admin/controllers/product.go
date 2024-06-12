@@ -90,3 +90,37 @@ func (pc *ProductController) DeleteProduct(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 	}
 }
+
+func (pc *ProductController) UpdateProduct(c *gin.Context) {
+	var product models.UpdateProduct
+
+	if err := c.ShouldBind(&product); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return 
+	}
+
+	if len(product.Categories) == 0 {
+		c.JSON(400, gin.H{
+			"error":   "no categories",
+			"product": product,
+		})
+		return
+	}
+
+	dst := fmt.Sprintf("uploads/%s", product.Image.Filename)
+	if err := c.SaveUploadedFile(product.Image, dst); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Не удалось сохранить файл",
+		})
+		return
+	}
+
+	updatedProduct, err := pc.service.UpdateProduct(product);
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, updatedProduct)
+}
