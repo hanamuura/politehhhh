@@ -4,7 +4,6 @@ import (
 	"admin/web-server/models"
 	"admin/web-server/repositories"
 	"errors"
-	"fmt"
 )
 
 type AuthService struct {
@@ -28,18 +27,16 @@ func (as *AuthService) Login(user models.User) (models.User, error) {
 	return existedUser, nil
 }
 
-func (as *AuthService) Register(user models.User) error {
+func (as *AuthService) Register(user models.User) (int, error) {
 	existedUser, _ := as.repo.GetUserByUsername(user)
-	fmt.Println("user name service: " + existedUser.Username)
 	if existedUser.Username == user.Username {
-		fmt.Print("qwerqwerqwerqwer")
-		return errors.New("user allready exist")
+		return -1, errors.New("user allready exist")
 	}
-	err := as.repo.Register(user)
+	userID, err := as.repo.Register(user)
 	if err != nil {
-		return err
+		return -1, err
 	}
-	return nil
+	return userID, nil
 }
 
 func (as *AuthService) PatchUser(newUser models.User) error {

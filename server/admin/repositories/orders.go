@@ -13,66 +13,36 @@ func NewOrderRepository(database *db.DataBase) *OrderRepository {
 	return &OrderRepository{db: database}
 }
 
-func (or *OrderRepository) GetAllOrders() ([]models.Order, error) {
+func (or *OrderRepository) GetAllOrders() ([]models.AdminOrder, error) {
 	query := `SELECT 
     	o.id, 
     	o.order_date, 
-    	o.order_status,
     	os.name,
-		o.product_id
-	FROM public.order o
-	LEFT JOIN public.order_status os ON o.order_status = os.id;`
+		p.name,
+		u.username
+	FROM "order" o
+	LEFT JOIN public.order_status os ON o.order_status = os.id
+	LEFT JOIN public.custom_user u ON o.user_id = u.id
+	LEFT JOIN public.product p ON o.product = p.id`
 	rows, err := or.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
-	var orders []models.Order
+	var orders []models.AdminOrder
 	for rows.Next() {
-		var order models.Order
-		var orderStatus models.OrderStatus
+		var order models.AdminOrder
 		if err := rows.Scan(
 			&order.ID,
 			&order.OrderDate,
-			&order.ProductID,
-			&orderStatus.ID,
-			&orderStatus.StatusName,
+			&order.OrderStatus,
+			&order.ProductName,
+			&order.Username,
 		); err != nil {
 			return nil, err
 		}
-		order.OrderStatus = orderStatus
 		orders = append(orders, order)
 	}
 	return orders, nil
-}
-
-func (or *OrderRepository) CreateOrder(order models.CreateOrder) error {
-	tx, err := or.db.Begin()
-	if err != nil {
-		return err
-	}
-
-	query := `
-    insert into (order_date, status_id, product_id, user_id) values ($1, $2)
-`
-	stmt, err := tx.Prepare(query)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(order.OrderDate, order.StatusID)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	return nil
 }
 
 func (or *OrderRepository) GetUserOrders(userID int) ([]models.Order, error) {
@@ -96,3 +66,11 @@ func (or *OrderRepository) GetUserOrders(userID int) ([]models.Order, error) {
 	}
 	return userOrders, nil
 }
+
+func (or *OrderRepository) DeleteOrder(id int) error {
+	query := `delete from "order" where id=$1`
+	if _, err := or.db.Exec(query, id); err != nil {
+		return err
+	}
+	return nil
+}	

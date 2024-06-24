@@ -42,14 +42,16 @@ const EditProductModal = ({ product, onClose }) => {
     };
 
     const handleSaveButton = () => {
-        let formData = new FormData()
+        const formData = new FormData()
         formData.append('name', updatedProduct.name);
         formData.append('description', JSON.stringify(updatedProduct.description));
-        let categories = updatedProduct.categories.map(cat => cat.id)
-        formData.append('categories', categories)
+        for (let i = 0; i < updatedProduct.categories.length; i++) {
+            formData.append('categories[]', JSON.stringify(updatedProduct.categories[i]));
+        }
         formData.append('id', updatedProduct.id)
         formData.append('price', updatedProduct.price)
         formData.append('availability', updatedProduct.availability)
+
         fetch(`${baseUrl}/admin/products`, {
             method: "PUT",
             body: formData

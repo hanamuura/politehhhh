@@ -3,7 +3,6 @@ package repositories
 import (
 	"admin/web-server/db"
 	"admin/web-server/models"
-	"fmt"
 )
 
 type AuthRepository struct {
@@ -18,36 +17,38 @@ func NewAuthRepository(db *db.DataBase) *AuthRepository {
 
 func (ar *AuthRepository) Login(user models.User) (models.User, error) {
 	existedUser, err := ar.GetUserByUsername(user)
-	fmt.Println("username: " + existedUser.Username)
-	fmt.Println("username: " + user.Username)
 	if err != nil {
 		return models.User{}, nil
 	}
 	return existedUser, nil
 }
 
-func (ar *AuthRepository) Register(newUser models.User) error {
+func (ar *AuthRepository) Register(newUser models.User) (int, error) {
 	tx, err := ar.db.Begin()
 	if err != nil {
-		tx.Rollback()
-		return err
+		return 0, err
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO custom_user(username, password, email, is_superuser) values ( $1, $2, $3, $4 ) ")
+	stmt, err := tx.Prepare("INSERT INTO custom_user(username, password, email, is_superuser) values ($1, $2, $3, $4) RETURNING id")
 	if err != nil {
 		tx.Rollback()
-		return err
+		return 0, err
 	}
 	defer stmt.Close()
 
-	stmt.QueryRow(newUser.Username, newUser.Password, newUser.Email, newUser.IsSuper)
-	
+	var userID int
+	err = stmt.QueryRow(newUser.Username, newUser.Password, newUser.Email, newUser.IsSuper).Scan(&userID)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		tx.Rollback()
-		return err
+		return 0, err
 	}
-	return nil
+	return userID, nil
 }
 
 func (ar *AuthRepository) GetUserByUsername(user models.User) (models.User, error) {
@@ -56,10 +57,8 @@ func (ar *AuthRepository) GetUserByUsername(user models.User) (models.User, erro
 	err := ar.db.QueryRow("select id, username, password, email, is_superuser from custom_user where username=$1", user.Username).
 		Scan(&userFromDB.ID, &userFromDB.Username, &userFromDB.Password, &userFromDB.Email, &userFromDB.IsSuper)
 	if err != nil {
-		fmt.Print(err)
 		return models.User{}, err
 	}
-	fmt.Println("user id from db: " + userFromDB.Username)
 	return userFromDB, nil
 }
 

@@ -19,6 +19,10 @@ const Delivery = (props) => {
         fetchData()
     }, [])
 
+    if (!orders?.length) {
+        return <div className="ml-5">нет товаров</div>
+    }
+
     if (!isLoad || !orders) {
         return (
             <div className="ml-5">
@@ -32,12 +36,68 @@ const Delivery = (props) => {
         )
     }
 
+
     return (
         <div className="ml-5">
             <div className="grid grid-cols-3 gap-4">
                 {orders.map(val => <DeliveryProduct productName={val.product} productPrice={val.product_price} orderDate={val.order_date} />)}
             </div>
             <div>Цена заказов: {orders.reduce((prev, cur) => prev + cur.product_price, 0)} BYN</div>
+            <div className="flex flex-col w-1/2 bg-secondary rounded-[25px] items-center gap-5 pt-9 pb-9">
+                <h1 className="text-white font-bold text-3xl">Доставка и оплата</h1>
+                <div className="flex w-[70%] items-center flex-col">
+                    Мы обрабатываем заказы ежедневно, без выходных, в течении 7 дней в неделю <span className="text-white">с 9:00 до 20:00.</span> Срочная доставка действует только в рабочее время магазина. Если у вас есть вопросы, звоните нам по номеру <span className="text-white">+375 (33) 200-42-90</span>
+                </div>
+                <div className="flex flex-col items-center w-full p-4 mt-5 gap-9">
+                    <div className="flex flex-row gap-5">
+                        <h1 className="text-2xl">Сроки доставки</h1>
+                        <div className="flex flex-col items-center">
+                            <div className="flex justify-between w-full items-center gap-3">
+                                <label>Доствка по Витебску</label>
+                                <label>На следующий день</label>
+                            </div>
+                            <div className="w-full bg-black h-[0.5px]"/>
+                            <div className="flex justify-between w-full items-center">
+                                <label>Сроки доставки</label>
+                                <label>На следующий день</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-row gap-5">
+                        <h1 className="text-2xl">Условия доставки</h1>
+                        <div className="flex flex-col items-center">
+                            <div className="flex justify-between w-full items-center">
+                                <label>Доствка по Витебску</label>
+                                <label>10.00 BYN</label>
+                            </div>
+                            <div className="w-full bg-black h-[0.5px]"/>
+                            <div className="flex justify-between w-full items-center gap-4">
+                                <label>Срочная доставка по Витебску</label>
+                                <label>30.00 BYN</label>
+                            </div>
+                            <div className="w-full bg-black h-[0.5px]"/>
+                            <div className="flex w-full justify-between items-center">
+                                <label>Доставка по Витебску</label>
+                                <label>70.00 BYN</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-row gap-5">
+                        <h1 className="text-2xl">Сроки доставки</h1>
+                        <div className="flex flex-col items-center">
+                            <div className="flex gap-6 items-center">
+                                <label>Доствка по Витебску</label>
+                                <label>На следующий день</label>
+                            </div>
+                            <div className="w-full bg-black h-[0.5px]"/>
+                            <div className="flex gap-6 items-center">
+                                <label>Сроки доставки</label>
+                                <label>На следующий день</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 };
@@ -52,6 +112,7 @@ export const DeliveryProduct = ({ productName, productPrice, orderDate }) => {
                 <h1>{productPrice} BYN</h1>
             </div>
             <h1>Дата заказа: {orderDate.split("T")[0]}</h1>
+
         </div>
     );
 }

@@ -10,6 +10,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export const Product = ({ product }) => {
+
   const handleAddToFavorite = () => {
     const userID = JSON.parse(Cookie.get('user')).id;
     const request = { user_id: userID, product_id: product.id };
@@ -30,7 +31,7 @@ export const Product = ({ product }) => {
           });
         })
         .catch(() => {
-          toast.error('Failed to add product to favorites.', {
+          toast.error('Товар не добавлен в избранное', {
             position: "bottom-right",
             autoClose: 3000,
             hideProgressBar: false,

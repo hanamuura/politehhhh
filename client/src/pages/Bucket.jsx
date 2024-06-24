@@ -27,8 +27,7 @@ export const Bucket = (props) => {
         { label: "Самолично", price: 0 },
     ])
     const [activeDelivery, setActiveDelivery] = useState(null)
-
-
+    const [count, setCount] = useState()
 
     useEffect(() => {
         if (Cookies.get('user')) {
@@ -37,6 +36,7 @@ export const Bucket = (props) => {
                 let response = await fetch(`${baseUrl}/v1/products?user_id=${userID}`)
                 let jsonResponse = await response.json()
                 setProducts(jsonResponse)
+                setCount(jsonResponse?.length)
                 setIsLoad(prev => !prev)
             }
             fetchData()
@@ -91,6 +91,10 @@ export const Bucket = (props) => {
         return <div className="flex justify-center items-center h-full">ВЫ НЕ ЗАРЕГИСТРИРОВАНЫ</div>
     }
 
+    if (!products?.length) {
+        return <div className="flex ml-5">нет товаров</div>
+    }
+
     if (!isLoad) {
         return (
             <>
@@ -108,7 +112,7 @@ export const Bucket = (props) => {
             <div className="flex gap-20 w-full">
                 <div className="flex flex-col gap-5 bg-[#b5b2d051] pr-16 pt-5 pb-5 rounded-[20px] ml-5 w-[60%]">
                     <div className="flex justify-between">
-                        <h1 className="font-bold text-2xl ml-3">Корзина ({products?.length})</h1>
+                        <h1 className="font-bold text-2xl ml-3">Корзина ({count})</h1>
                         <div className="flex items-center gap-3">
                             Выбрать все
                             <input type="checkbox" value={all} onChange={() => setAll(pre => !pre)} />
@@ -116,7 +120,7 @@ export const Bucket = (props) => {
                     </div>
                     <div className="flex flex-col ml-3 ">
                         {products ? products.map((val) => (
-                            <BucketProduct product={val} setSelected={setSelectedProducts} all={all} />
+                            <BucketProduct product={val} setSelected={setSelectedProducts} all={all} setCount={setCount}/>
                         )) : <div className="flex justify-center items-center h-full">ТОВАРОВ В КОРЗИНЕ НЕТУ </div>}
                     </div>
                 </div>

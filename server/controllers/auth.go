@@ -46,12 +46,13 @@ func (ac *AuthController) Register(c *gin.Context) {
 		})
 		return
 	}
-	err = ac.service.Register(userFromRequest)
+	userID, err := ac.service.Register(userFromRequest)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 	}
+	c.JSON(http.StatusOK, gin.H{"user_id": userID})
 }
 
 func (ac *AuthController) PatchUser(c *gin.Context) {
@@ -60,12 +61,12 @@ func (ac *AuthController) PatchUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-		return 
+		return
 	}
 	if err := ac.service.PatchUser(newUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-		return 
+		return
 	}
-}	
+}

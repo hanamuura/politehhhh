@@ -4,7 +4,6 @@ import (
 	"admin/web-server/db"
 	"admin/web-server/models"
 	"encoding/json"
-	"fmt"
 )
 
 type ProductRepository struct {
@@ -89,8 +88,8 @@ func (pr *ProductRepository) GetAllProducts() ([]models.Product, error) {
 func (pr *ProductRepository) GetProductById(id string) (models.Product, error) {
 	var productFromDB models.ProductFromDB
 	var product models.Product
-	err := pr.db.QueryRow("SELECT id, name, description, price, availability FROM product WHERE id = $1", id).
-		Scan(&product.ID, &product.Name, &productFromDB.Description, &product.Price, &product.Availability)
+	err := pr.db.QueryRow("SELECT id, name, description, price, availability, image FROM product WHERE id = $1", id).
+		Scan(&product.ID, &product.Name, &productFromDB.Description, &product.Price, &product.Availability, &product.Image)
 	if err != nil {
 		return models.Product{}, err
 	}
@@ -223,13 +222,12 @@ func (pr *ProductRepository) GetProductUser(userID int) ([]models.UserProduct, e
 			&product.Image,
 		)
 		json.Unmarshal(description, &product.Description)
-		fmt.Println(product.Name)
 		products = append(products, product)
 	}
 	return products, nil
 }
 
-func (pr *ProductRepository) DeleteFavourites(userID int, productID int) (error){
+func (pr *ProductRepository) DeleteFavourites(userID int, productID int) error {
 	query := `DELETE FROM user_product
 	WHERE user_id = $2 and product_id = $2`
 	if _, err := pr.db.Exec(query, userID, productID); err != nil {

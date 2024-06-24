@@ -19,6 +19,10 @@ const Favourites = (props) => {
         fetchData()
     }, [])
 
+    if (!products?.length) {
+        return <div className="ml-5">нет товаров</div>
+    }
+
     if (!isLoad) {
         return (
             <>

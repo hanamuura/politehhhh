@@ -27,14 +27,17 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	database, err := db.NewDataBase("host=localhost port=5432 user=postgres password=postgres dbname=zoo_db sslmode=disable")
+	database, err := db.NewDataBase("host=localhost port=5432 user=postgres password=1234 dbname=zoo_db2 sslmode=disable client_encoding=UTF8")
+
 	if err != nil {
 		return
 	}
+
 	adminApp, err := admin.NewApp(database)
 	if err != nil {
 		return
 	}
+
 	v1App := configs.NewApp(database)
 
 	api := r.Group("/api")
@@ -82,5 +85,5 @@ func main() {
 		})
 	})
 
-	r.Run("0.0.0.0:8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run("0.0.0.0:8080")
 }

@@ -3,7 +3,6 @@ package services
 import (
 	"admin/web-server/admin/models"
 	"admin/web-server/admin/repositories"
-
 	"github.com/go-playground/validator/v10"
 )
 
@@ -61,10 +60,10 @@ func (ps *ProductService) DeleteProduct(id int) (error) {
 	return nil
 }
 
-func (ps *ProductService) UpdateProduct(newProduct models.UpdateProduct) (models.Product, error){
-	newUpdatedProduct, err := ps.repo.UpdateProduct(newProduct)
+func (ps *ProductService) UpdateProduct(newProduct models.UpdateProduct) error{
+	err := ps.repo.UpdateProduct(newProduct)
 	if err != nil {
-		return models.Product{}, err
+		return err
 	}
-	return newUpdatedProduct, nil
+	return nil
 }

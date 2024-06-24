@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react"
 import Cookies from "js-cookie";
 import { useToggle } from "../../hooks/useToggle";
 import ChangeProfile from "../../modals/ChangeProfile";
-import img from "C:/Users/Administrator/Downloads/Telegram Desktop/photo_2024-04-08_21-53-00.jpg" 
 import Card from "../Card";
 import CardsProfile from "../CardsProfile";
 
@@ -35,7 +34,7 @@ const Profile = () => {
                     </div>
                 </div>
                 <div>
-                    <img className="rounded-[50%] w-[200px] h-[200px]" src={img} />
+                    <img className="rounded-[50%] w-[200px] h-[200px]" src={``} />
                 </div>
             </div>
             <CardsProfile cards={cards} setCards={setCards}/>

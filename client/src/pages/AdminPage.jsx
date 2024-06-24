@@ -26,12 +26,12 @@ const AdminPage = () => {
 
 
     return (
-        <div className="flex items-center">
+        <div className="flex items-center w-full">
             <Tabs>
-                <Tab title="Товары">
+                <Tab title="Товары" className="w-full">
                     <ProductLayout />
                 </Tab>
-                <Tab title="Заказы">
+                <Tab title="Заказы" className="w-full">
                     <OrdersLayout />
                 </Tab>
             </Tabs>

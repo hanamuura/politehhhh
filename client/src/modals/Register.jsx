@@ -12,12 +12,14 @@ const Register = ({ isOpen, onClose }) => {
     };
 
     const loginUser = async () => {
-        console.log(user)
+        //console.log(user)
         const response = await fetch(`${baseUrl}/register`, {
             method: "POST",
             body: JSON.stringify(user)
         })
-        console.log(response)
+        let userID = await response.json()
+        user["id"] = userID.user_id
+        console.log(user)
         if (response.status === 200){
             Cookies.set('user', JSON.stringify(user))
             window.location.reload()

@@ -4,7 +4,6 @@ import (
 	"admin/web-server/admin/models"
 	"admin/web-server/db"
 	"encoding/json"
-	"strconv"
 )
 
 type ProductRepository struct {
@@ -214,15 +213,24 @@ func (pr *ProductRepository) GetCategoriesOfProduct(productID uint) ([]models.Ca
 }
 
 func (pr *ProductRepository) DeleteProduct(id int) error {
-	query := `delete from product where id=$1`
+	deleteRelationQuery := `delete from user_product where product_id=$1;`
+
+	if _, err := pr.db.Exec(deleteRelationQuery, id); err != nil {
+		return err
+	}
+
+	query := `
+		delete from product where id=$1;	
+	`
 
 	if _, err := pr.db.Exec(query, id); err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func (pr *ProductRepository) UpdateProduct(newProduct models.UpdateProduct) (models.Product, error) {
+func (pr *ProductRepository) UpdateProduct(newProduct models.UpdateProduct) error {
 	query := `UPDATE product 
 		SET name = $1, 
 		    description = $2, 
@@ -232,50 +240,37 @@ func (pr *ProductRepository) UpdateProduct(newProduct models.UpdateProduct) (mod
 
 	description, err := json.Marshal(newProduct.Description)
 	if err != nil {
-		return models.Product{}, err
+		return err
 	}
 
-	result, err := pr.db.Exec(query, newProduct.Name, description, newProduct.Price, newProduct.Availability, newProduct.ID)
+	_, err = pr.db.Exec(query, newProduct.Name, description, newProduct.Price, newProduct.Availability, newProduct.ID)
 	if err != nil {
-		return models.Product{}, err
+		return err
 	}
 
 	err = pr.updateProductCategories(newProduct.ID, newProduct.Categories)
 	if err != nil {
-		return models.Product{}, err
+		return err
 	}
-
-	updatedID, err := result.LastInsertId()
-	if err != nil {
-		return models.Product{}, err
-	}
-
-	updatedProduct, err := pr.GetProductById(strconv.Itoa(int(updatedID)))
-	if err != nil {
-		return models.Product{}, err
-	}
-
-	return updatedProduct, nil
+	return nil
 }
 
-func (pr *ProductRepository) updateProductCategories(productID int, categories []*uint) error {
+func (pr *ProductRepository) updateProductCategories(productID int, categories []models.CreateCategory) error {
 	tx, err := pr.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec("DELETE FROM product_category WHERE product_id = ?", productID)
+	_, err = tx.Exec("DELETE FROM product_categories WHERE product_id = $1", productID)
 	if err != nil {
 		return err
 	}
 
-	for _, categoryID := range categories {
-		if categoryID != nil {
-			_, err = tx.Exec("INSERT INTO product_category (product_id, category_id) VALUES (?, ?)", productID, *categoryID)
-			if err != nil {
-				return err
-			}
+	for _, category := range categories {
+		_, err = tx.Exec("INSERT INTO product_categories (product_id, category_id) VALUES ($1, $2)", productID, category.ID)
+		if err != nil {
+			return err
 		}
 	}
 

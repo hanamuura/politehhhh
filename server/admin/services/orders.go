@@ -19,7 +19,7 @@ func NewOrderService(repository *repositories.OrderRepository) *OrderService {
 	}
 }
 
-func (os *OrderService) GetAllOrders() ([]models.Order, error){
+func (os *OrderService) GetAllOrders() ([]models.AdminOrder, error){
 	orders, err := os.repo.GetAllOrders()
 	if err != nil {
 		return nil, err
@@ -27,6 +27,6 @@ func (os *OrderService) GetAllOrders() ([]models.Order, error){
 	return orders, nil
 }
 
-func (os *OrderService) CreateOrder() error {
-	return nil
+func (os *OrderService) DeleteOrder(id int) error {
+	return os.repo.DeleteOrder(id)
 }

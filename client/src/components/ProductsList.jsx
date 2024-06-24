@@ -8,7 +8,6 @@ export const ProductsList = ({ products }) => {
         return <>Loading...</>
     }
 
-    console.log(products)
 
     return (
         <MainBlock>

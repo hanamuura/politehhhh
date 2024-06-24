@@ -66,9 +66,8 @@ export function StartPage() {
       </PreviewContainer>
       <CategoryContainer>
         {/* <CategoryBlock categories={categories} values={values} /> */}
-        <ProductsContainer categories={category} products={data} />
+        {data?.length ? <ProductsContainer categories={category} products={data} /> : <>Нет товаров</>}
       </CategoryContainer>
-      {/* <Paginator /> */}
     </Main>
   )
 }

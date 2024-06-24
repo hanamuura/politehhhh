@@ -3,7 +3,8 @@ import { useToggle } from "../../hooks/useToggle";
 import UpdateProduct from "../../modals/UpdateProduct";
 import CreateProduct from "../../modals/CreateProduct";
 import { baseUrl } from "../../constants";
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/ReactToastify.css'
 
 
 const ProductLayout = (props) => {
@@ -23,7 +24,7 @@ const ProductLayout = (props) => {
         async function getData() {
             let response = await fetch(`${baseUrl}/admin/products`, { signal: signal })
             let jsonResponse = await response.json()
-            setProducts(jsonResponse)
+            setProducts(jsonResponse.sort((a, b) => a.id - b.id))
             setIsLoad(prev => !prev)
         }
 
@@ -42,11 +43,23 @@ const ProductLayout = (props) => {
 
     const handleDelete = async (id) => {
         try {
-            await fetch(`${baseUrl}/admin/products/${id}`, { method: "DELETE" }).catch(err => alert(err));
-            toast.success('Успешно удалено');
+            let res = await fetch(`${baseUrl}/admin/products/${id}`, { method: "DELETE" })
+            if (res.status === 200) {
+                toast.success('Успешно удалено', {
+                    position: "bottom-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+                setSearchedProducts(prev => prev.filter(val => val.id !== id))
+            } else {
+                toast.error('Удаление невозможно т.к. товар заказан');
+            }
         } catch (err) {
             console.log(err);
-            toast.error('Удаление невозможно т.к. товар заказан');
         }
     };
 
@@ -62,7 +75,7 @@ const ProductLayout = (props) => {
                 </div>
             </div>
         )
-    }
+    }   
 
     return (
         <div className="relative overflow-x-auto">
@@ -177,6 +190,7 @@ const ProductLayout = (props) => {
             </div>
             {isOpen && <UpdateProduct product={selectedProduct} onClose={toggle} />}
             {createModalIsOpen && <CreateProduct product={selectedProduct} onClose={setCreateModalIsOpen} />}
+            <ToastContainer />
         </div>
     );
 };

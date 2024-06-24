@@ -39,11 +39,10 @@ type CreateCategory struct {
 }
 
 type UpdateProduct struct {
-	ID           int                   `form:"id"`
-	Name         string                `form:"name"`
-	Description  JSONDescription       `form:"description"`
-	Price        float64               `form:"price"`
-	Availability int                   `form:"availability"`
-	Categories   []*uint               `form:"categories[]"`
-	Image        *multipart.FileHeader `form:"image"`
+	ID           int              `form:"id"`
+	Name         string           `form:"name"`
+	Description  JSONDescription  `form:"description"`
+	Price        float64          `form:"price"`
+	Availability int              `form:"availability"`
+	Categories   []CreateCategory `form:"categories[]"`
 }

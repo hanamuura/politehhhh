@@ -84,8 +84,6 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
 func (pc *ProductController) DeleteProduct(c *gin.Context) {
 	paramId := c.Param("id")
 	id, _ := strconv.Atoi(paramId)
-	fmt.Println(id)
-	fmt.Println(paramId)
 	if err := pc.service.DeleteProduct(id); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 	}
@@ -107,20 +105,11 @@ func (pc *ProductController) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	dst := fmt.Sprintf("uploads/%s", product.Image.Filename)
-	if err := c.SaveUploadedFile(product.Image, dst); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Не удалось сохранить файл",
-		})
-		return
-	}
-
-	updatedProduct, err := pc.service.UpdateProduct(product);
+	err := pc.service.UpdateProduct(product);
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, updatedProduct)
 }

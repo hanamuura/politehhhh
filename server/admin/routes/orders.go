@@ -20,5 +20,6 @@ func (or *OrderRoutes) RegisterRoutes(r *gin.RouterGroup) {
 	orderRoutes := r.Group("/orders")
 	{
 		orderRoutes.GET("", or.controller.GetAllOrders)
+		orderRoutes.DELETE("/:id", or.controller.DeleteOrder)
 	}
 }
